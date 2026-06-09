@@ -1,0 +1,14 @@
+# Keil per-user settings
+MDK-ARM/*.uvguix.*
+MDK-ARM/*.uvoptx
+
+# Keil build outputs (keep flashable firmware images)
+Listings/
+Objects/*
+!Objects/*.hex
+
+# Editor and Windows files
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
