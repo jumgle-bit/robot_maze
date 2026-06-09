@@ -2,6 +2,7 @@
 #define __MAZE_H
 
 #include <stdint.h>
+#include "ultrasonic.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,6 +12,7 @@ typedef struct
 {
     uint16_t front_cm;
     uint8_t front_valid;
+    UltrasonicStatus_t front_status;
     uint8_t left_blocked;
     uint8_t right_blocked;
 } SensorState_t;

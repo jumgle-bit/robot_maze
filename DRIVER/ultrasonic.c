@@ -13,9 +13,14 @@
 #error "ULTRASONIC_TRIGGER_INTERVAL_MS must be in the range 1..65"
 #endif
 
+#if (ULTRASONIC_RETRY_COUNT == 0U)
+#error "ULTRASONIC_RETRY_COUNT must be at least 1"
+#endif
+
 static uint8_t g_last_read_valid = 0U;
 static uint8_t g_has_triggered = 0U;
 static uint16_t g_last_trigger_us = 0U;
+static UltrasonicStatus_t g_last_status = ULTRASONIC_STATUS_NO_ECHO_RISE;
 
 static uint8_t Ultrasonic_WaitEchoLevel(uint8_t expected_level, uint16_t timeout_us)
 {
@@ -55,18 +60,21 @@ void Ultrasonic_Init(void)
     GPIO_ResetPin(US_ECHO_PORT, US_ECHO_PIN); /* 输入下拉：断线时避免浮空产生虚假距离 */
     g_last_read_valid = 0U;
     g_has_triggered = 0U;
+    g_last_status = ULTRASONIC_STATUS_NO_ECHO_RISE;
 }
 
 static uint16_t Ultrasonic_ReadRawCm(void)
 {
     uint16_t start;
     uint16_t width_us;
+    uint16_t cm;
 
     Ultrasonic_WaitForTriggerInterval();
 
     /* 正常情况下触发前 ECHO 必须处于低电平，否则本次读数无效。 */
     if (!Ultrasonic_WaitEchoLevel(0U, ULTRASONIC_ECHO_IDLE_TIMEOUT_US))
     {
+        g_last_status = ULTRASONIC_STATUS_ECHO_IDLE_HIGH;
         return 0U;
     }
 
@@ -82,6 +90,7 @@ static uint16_t Ultrasonic_ReadRawCm(void)
     /* 等待 ECHO 拉高 */
     if (!Ultrasonic_WaitEchoLevel(1U, ULTRASONIC_TIMEOUT_US))
     {
+        g_last_status = ULTRASONIC_STATUS_NO_ECHO_RISE;
         return 0U;
     }
 
@@ -91,24 +100,46 @@ static uint16_t Ultrasonic_ReadRawCm(void)
     {
         if ((uint16_t)(Delay_GetMicros16() - start) > ULTRASONIC_TIMEOUT_US)
         {
-            return 0;
+            g_last_status = ULTRASONIC_STATUS_ECHO_HIGH_TIMEOUT;
+            return 0U;
         }
     }
 
     width_us = (uint16_t)(Delay_GetMicros16() - start);
 
     /* HC-SR04 常用换算：距离(cm) = 高电平时间(us) / 58 */
-    return (uint16_t)(width_us / 58U);
+    cm = (uint16_t)(width_us / 58U);
+    if (cm < ULTRASONIC_MIN_CM)
+    {
+        g_last_status = ULTRASONIC_STATUS_TOO_CLOSE;
+    }
+    else if (cm > ULTRASONIC_MAX_CM)
+    {
+        g_last_status = ULTRASONIC_STATUS_TOO_FAR;
+    }
+    else
+    {
+        g_last_status = ULTRASONIC_STATUS_OK;
+    }
+    return cm;
 }
 
 uint16_t Ultrasonic_ReadFrontCm(void)
 {
-    uint16_t cm = Ultrasonic_ReadRawCm();
+    uint8_t attempt;
+    uint16_t cm;
 
-    if (cm >= ULTRASONIC_MIN_CM && cm <= ULTRASONIC_MAX_CM)
+    for (attempt = 0U; attempt < ULTRASONIC_RETRY_COUNT; ++attempt)
     {
-        g_last_read_valid = 1U;
-        return cm;
+        cm = Ultrasonic_ReadRawCm();
+
+        if (cm >= ULTRASONIC_MIN_CM && cm <= ULTRASONIC_MAX_CM)
+        {
+            g_last_read_valid = 1U;
+            g_last_status = ULTRASONIC_STATUS_OK;
+            return cm;
+        }
+
     }
 
     g_last_read_valid = 0U;
@@ -118,6 +149,32 @@ uint16_t Ultrasonic_ReadFrontCm(void)
 uint8_t Ultrasonic_LastReadValid(void)
 {
     return g_last_read_valid;
+}
+
+UltrasonicStatus_t Ultrasonic_GetLastStatus(void)
+{
+    return g_last_status;
+}
+
+const char *Ultrasonic_StatusText(UltrasonicStatus_t status)
+{
+    switch (status)
+    {
+        case ULTRASONIC_STATUS_OK:
+            return "NONE";
+        case ULTRASONIC_STATUS_ECHO_IDLE_HIGH:
+            return "ECHO_IDLE_HIGH";
+        case ULTRASONIC_STATUS_NO_ECHO_RISE:
+            return "NO_ECHO_RISE";
+        case ULTRASONIC_STATUS_ECHO_HIGH_TIMEOUT:
+            return "ECHO_HIGH_TIMEOUT";
+        case ULTRASONIC_STATUS_TOO_CLOSE:
+            return "TOO_CLOSE";
+        case ULTRASONIC_STATUS_TOO_FAR:
+            return "TOO_FAR";
+        default:
+            return "UNKNOWN";
+    }
 }
 
 uint8_t Ultrasonic_IsFrontClear(uint16_t safe_cm)

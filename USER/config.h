@@ -15,7 +15,9 @@
 #define APP_MODE_MAZE          0
 #define APP_MODE_MOTOR_TEST    1
 #define APP_MODE_SENSOR_TEST   2
+#ifndef APP_RUN_MODE
 #define APP_RUN_MODE           APP_MODE_MAZE
+#endif
 
 /*
  * ==============================
@@ -41,23 +43,31 @@
  *  PWM 与速度参数：全部在这里改
  * ==============================
  * TIM2 PWM 周期默认为 1000，因此下面 PWM 值范围建议 0~1000。
- * 本版转弯采用“差速转弯”：左右轮均向前转，只是内侧轮慢、外侧轮快，
- * 不再使用左轮反转/右轮正转那种正反转原地转弯方式。
- * 本次已把差速驱动 PWM 整体调低，若实车动力不足可只调大下面几个宏。
+ * 正式迷宫模式使用传感器闭环原地转向，减少差速前进转弯产生的位置漂移。
+ * 电机测试模式仍保留差速转弯接口。
  */
 #define MOTOR_PWM_MAX             1000
 
 /* 正式迷宫运行用 PWM */
-#define MOTOR_FORWARD_PWM         800    /* 正常直行 PWM，已调低 */
-#define MOTOR_SLOW_PWM            720    /* 前方较近时减速 PWM，已调低 */
+#define MOTOR_FORWARD_PWM         600    /* 正常直行 PWM，已调低 */
+#define MOTOR_SLOW_PWM            420    /* 前方较近时减速 PWM，已调低 */
 
 /* 差速 90°转弯 PWM：内侧轮慢，外侧轮快 */
-#define MOTOR_TURN_INNER_PWM      600
-#define MOTOR_TURN_OUTER_PWM      800
+#define MOTOR_TURN_INNER_PWM      300
+#define MOTOR_TURN_OUTER_PWM      600
 
 /* 差速掉头 PWM：仍然双轮向前差速，不采用正反转 */
-#define MOTOR_TURN_BACK_INNER_PWM 600
-#define MOTOR_TURN_BACK_OUTER_PWM 800
+#define MOTOR_TURN_BACK_INNER_PWM 400
+#define MOTOR_TURN_BACK_OUTER_PWM 700
+
+/* 闭环转向：传感器决定何时完成旋转，最大采样数只作为安全保护。 */
+#define MOTOR_FEEDBACK_TURN_PWM          360
+#define TURN_CREEP_PULSE_MS              35U
+#define TURN_CREEP_SETTLE_MS             30U
+#define TURN_FEEDBACK_DISTANCE_CHANGE_CM 8U
+#define TURN_FEEDBACK_STABLE_SAMPLES     2U
+#define TURN_FEEDBACK_MAX_SAMPLES        60U
+#define TURN_FEEDBACK_MAX_INVALID_SAMPLES 2U
 
 /* 测试模式用 PWM */
 #define MOTOR_TEST_FORWARD_PWM    450
@@ -102,20 +112,18 @@
 #define ULTRASONIC_TIMEOUT_US    30000
 #define ULTRASONIC_ECHO_IDLE_TIMEOUT_US 1000
 #define ULTRASONIC_TRIGGER_INTERVAL_MS 60U
+#define ULTRASONIC_RETRY_COUNT         3U
 
 /*
  * ==============================
  *  动作时间参数
  * ==============================
- * 差速转弯半径比原地正反转更大，转弯时间通常需要重新实测。
- * 若转角不足，增大对应时间；若转角过大，减小对应时间。
+ * 下面仅保留停车和直线短距离动作时间；旋转不再使用固定转向时间。
  */
 #define MAZE_LOOP_DELAY_MS        35
 #define MAZE_STOP_BEFORE_TURN_MS  120
-#define MAZE_PRE_TURN_FORWARD_MS  160
+#define MAZE_PRE_TURN_FORWARD_MS  120
 #define MAZE_POST_TURN_FORWARD_MS 220
-#define MAZE_TURN_90_MS           650
-#define MAZE_TURN_BACK_MS         1350
 #define MAZE_SENSOR_FAULT_RETRY_MS 100
 
 #endif

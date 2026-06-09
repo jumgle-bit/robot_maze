@@ -108,6 +108,7 @@ void UART1_SendDistanceCm(uint16_t cm)
 
 void UART1_SendRobotStatus(uint16_t cm,
                            uint8_t ultrasonic_valid,
+                           const char *ultrasonic_error,
                            uint8_t left_blocked,
                            uint8_t right_blocked,
                            int16_t left_pwm,
@@ -126,6 +127,8 @@ void UART1_SendRobotStatus(uint16_t cm,
         UART1_SendString("INVALID,US_OK=0");
     }
 
+    UART1_SendString(",US_ERR=");
+    UART1_SendString(ultrasonic_error);
     UART1_SendString(",IR_L=");
     UART1_SendString(left_blocked ? "BLOCK" : "CLEAR");
     UART1_SendString(",IR_R=");
@@ -141,6 +144,7 @@ void UART1_SendRobotStatus(uint16_t cm,
 #else
     (void)cm;
     (void)ultrasonic_valid;
+    (void)ultrasonic_error;
     (void)left_blocked;
     (void)right_blocked;
     (void)left_pwm;

@@ -37,7 +37,7 @@ int main(void)
     Ultrasonic_Init();
     IR_Init();
     UART1_Init(UART1_BAUDRATE);
-    UART1_SendString("MazeRobot status: US, US_OK, IR_L, IR_R, PWM_L, PWM_R\r\n");
+    UART1_SendString("MazeRobot status: US, US_OK, US_ERR, IR_L, IR_R, PWM_L, PWM_R, ACT\r\n");
     Maze_Init();
 
     Delay_ms(500);

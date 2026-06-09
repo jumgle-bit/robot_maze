@@ -13,6 +13,7 @@ void UART1_SendString(const char *str);
 void UART1_SendDistanceCm(uint16_t cm);
 void UART1_SendRobotStatus(uint16_t cm,
                            uint8_t ultrasonic_valid,
+                           const char *ultrasonic_error,
                            uint8_t left_blocked,
                            uint8_t right_blocked,
                            int16_t left_pwm,
