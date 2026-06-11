@@ -1,0 +1,9 @@
+..\objects\maze.o: ..\APP\maze.c
+..\objects\maze.o: ..\APP\maze.h
+..\objects\maze.o: D:\Keil\ARM\ARMCC\Bin\..\include\stdint.h
+..\objects\maze.o: ..\USER\config.h
+..\objects\maze.o: ..\DRIVER\delay.h
+..\objects\maze.o: ..\DRIVER\motor.h
+..\objects\maze.o: ..\DRIVER\ultrasonic.h
+..\objects\maze.o: ..\DRIVER\ir_sensor.h
+..\objects\maze.o: ..\DRIVER\uart.h

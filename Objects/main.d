@@ -1,0 +1,11 @@
+..\objects\main.o: ..\USER\main.c
+..\objects\main.o: ..\SYSTEM\system_stm32f103.h
+..\objects\main.o: ..\SYSTEM\stm32f103_min.h
+..\objects\main.o: D:\Keil\ARM\ARMCC\Bin\..\include\stdint.h
+..\objects\main.o: ..\DRIVER\delay.h
+..\objects\main.o: ..\DRIVER\motor.h
+..\objects\main.o: ..\DRIVER\ultrasonic.h
+..\objects\main.o: ..\DRIVER\ir_sensor.h
+..\objects\main.o: ..\DRIVER\uart.h
+..\objects\main.o: ..\APP\maze.h
+..\objects\main.o: ..\USER\config.h

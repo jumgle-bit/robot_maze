@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<UVisionProjectWorkspace>
+  <SchemaVersion>1.0</SchemaVersion>
+  <Header>### uVision Project Workspace</Header>
+  <WorkspaceName>MazeRobot</WorkspaceName>
+  <project>
+    <PathAndName>.\MazeRobot.uvprojx</PathAndName>
+    <NodeIsActive>1</NodeIsActive>
+    <NodeIsExpanded>1</NodeIsExpanded>
+    <NodeIsChecked>1</NodeIsChecked>
+  </project>
+</UVisionProjectWorkspace>
