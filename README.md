@@ -48,20 +48,21 @@ USER/config.h
 ```c
 #define IR_BLOCKED_LEVEL          0
 
-#define MOTOR_FORWARD_PWM         700
+#define MOTOR_FORWARD_PWM         650
 #define MOTOR_SLOW_PWM            620
-#define MOTOR_TURN_DELAY_PWM      620
-#define MOTOR_TURN_INNER_PWM      420
-#define MOTOR_TURN_OUTER_PWM      780
+#define MOTOR_TURN_LOST_PWM       560
+#define MOTOR_TURN_INNER_PWM      550
+#define MOTOR_TURN_OUTER_PWM      980
 #define MOTOR_TURN_BACK_SPIN_PWM  650
 
 #define UART_STATUS_ENABLE        1
 #define UART1_BAUDRATE            115200U
 #define UART_STATUS_INTERVAL_MS   300U
 
-#define FRONT_SAFE_DISTANCE_CM    18
-#define FRONT_SLOW_DISTANCE_CM    28
-#define FRONT_TURN_BACK_CLEAR_CM  24
+#define FRONT_SAFE_DISTANCE_CM    10
+#define FRONT_SLOW_DISTANCE_CM    15
+#define FRONT_TURN_BACK_CLEAR_CM  15
+#define MAZE_IR_CONFIRM_COUNT     2
 
 #define ULTRASONIC_TRIGGER_INTERVAL_MS 60U
 
@@ -69,21 +70,23 @@ USER/config.h
 #define MAZE_FORWARD_CHECK_STEP_MS 40
 #define MAZE_FORWARD_CHECK_PAUSE_MS 20
 #define MAZE_STOP_BEFORE_TURN_MS  120
-#define MAZE_TURN_DELAY_FORWARD_MS 320
 #define MAZE_POST_TURN_FORWARD_MS 220
-#define MAZE_TURN_STEP_MS         220
+#define MAZE_TURN_STEP_MS         45
 #define MAZE_TURN_STEP_PAUSE_MS   20
-#define MAZE_TURN_90_MS           720
+#define MAZE_TURN_LOST_FORWARD_MS 80
+#define MAZE_TURN_MIN_MS          260
+#define MAZE_TURN_MAX_MS          1200
+#define MAZE_TURN_BACK_MIN_MS     260
 #define MAZE_TURN_BACK_STEP_MS    80
 #define MAZE_TURN_BACK_CHECK_PAUSE_MS 20
-#define MAZE_TURN_BACK_MAX_MS     1500
+#define MAZE_TURN_BACK_MAX_MS     1800
 ```
 
-90°转弯采用低速脉冲式差速转弯，由 `MOTOR_TURN_INNER_PWM`、`MOTOR_TURN_OUTER_PWM`、`MAZE_TURN_STEP_MS`、`MAZE_TURN_STEP_PAUSE_MS` 和 `MAZE_TURN_90_MS` 调整。转角不足就增大 `MAZE_TURN_90_MS` 或略微提高外侧轮 PWM，转过头就减小。死路掉头使用一侧正转、一侧反转的分段原地左旋，由 `MOTOR_TURN_BACK_SPIN_PWM`、`MAZE_TURN_BACK_STEP_MS` 和 `MAZE_TURN_BACK_CHECK_PAUSE_MS` 调整动作细腻程度；当前方超声波距离大于 `FRONT_TURN_BACK_CLEAR_CM` 时提前退出，`MAZE_TURN_BACK_MAX_MS` 作为超声波异常或距离未恢复时的最大兜底时间。
+90°转弯采用状态机分段差速转弯，由 `MOTOR_TURN_INNER_PWM`、`MOTOR_TURN_OUTER_PWM`、`MAZE_TURN_STEP_MS`、`MAZE_TURN_STEP_PAUSE_MS`、`MAZE_TURN_MIN_MS` 和 `MAZE_TURN_MAX_MS` 调整。达到最小转弯时间后，对应侧红外连续 `MAZE_IR_CONFIRM_COUNT` 次检测到墙就退出；如果一直没有确认，则达到 `MAZE_TURN_MAX_MS` 后兜底退出。转弯期间若左右红外都检测不到墙且前方安全，会用 `MOTOR_TURN_LOST_PWM` 前进 `MAZE_TURN_LOST_FORWARD_MS` 做补位，然后继续原转弯状态。死路掉头使用一侧正转、一侧反转的分段原地左旋，由 `MOTOR_TURN_BACK_SPIN_PWM`、`MAZE_TURN_BACK_STEP_MS` 和 `MAZE_TURN_BACK_CHECK_PAUSE_MS` 调整动作细腻程度；达到 `MAZE_TURN_BACK_MIN_MS` 后，当前方超声波距离连续大于 `FRONT_TURN_BACK_CLEAR_CM` 时提前退出，`MAZE_TURN_BACK_MAX_MS` 作为超声波异常或距离未恢复时的最大兜底时间。
 
-检测到需要转弯后，如果前方距离安全，小车会先用 `MOTOR_TURN_DELAY_PWM` 低速前进 `MAZE_TURN_DELAY_FORWARD_MS`，让车身更深入路口后再开始转弯。
+检测到需要转弯后，小车只会先停止 `MAZE_STOP_BEFORE_TURN_MS`，让车身稳定后直接进入转弯状态，不再执行转弯前前进动作。
 
-转弯结束后会锁定触发转弯的一侧。例如右侧空旷触发右转后，会锁定右侧；锁定期间不响应另一侧红外，也不会恢复普通直行决策，而是继续朝锁定侧做小段差速修正，直到右侧红外重新检测到墙/障碍后才解锁。
+转弯期间进入独立状态，不再执行新的路口决策。例如右侧空旷触发右转后，会持续执行右转状态；达到最小转弯时间后，只有右侧红外连续检测到墙，或达到最大转弯时间，才会回到普通左手原则决策。
 
 ## 4. 串口状态输出
 
@@ -119,7 +122,7 @@ US=18cm,US_OK=1,IR_L=BLOCK,IR_R=CLEAR,PWM_L=+600,PWM_R=+800
 4. 左、前、右均不可通行：分段原地左旋掉头，直到前方超声波恢复安全距离或达到最大兜底时间。
 ```
 
-转弯前如果前方距离大于 `FRONT_SAFE_DISTANCE_CM`，小车会先短距离前进，让车身中心进入路口后再差速转弯。转弯后如果前方仍安全，也会短距离前进，减少在路口边缘反复触发传感器。短距离前进期间会按 `MAZE_FORWARD_CHECK_STEP_MS` 分段重新测距，发现前方不安全会立即停车。
+转弯后如果前方仍安全，小车会短距离前进，减少在路口边缘反复触发传感器。短距离前进期间会按 `MAZE_FORWARD_CHECK_STEP_MS` 分段重新测距，发现前方不安全会立即停车。
 
 ## 6. Keil5 打开方式
 

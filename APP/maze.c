@@ -16,11 +16,14 @@ static uint16_t g_uart_status_elapsed_ms = 0U;
 static SensorState_t g_last_sensor_state = {0U, 0U, 0U, 0U};
 #endif
 
-#define MAZE_TURN_LOCK_NONE  0U
-#define MAZE_TURN_LOCK_LEFT  1U
-#define MAZE_TURN_LOCK_RIGHT 2U
+#define MAZE_STATE_FORWARD    0U
+#define MAZE_STATE_TURN_LEFT  1U
+#define MAZE_STATE_TURN_RIGHT 2U
+#define MAZE_STATE_TURN_BACK  3U
 
-static uint8_t g_turn_lock_side = MAZE_TURN_LOCK_NONE;
+static uint8_t g_maze_state = MAZE_STATE_FORWARD;
+static uint16_t g_state_elapsed_ms = 0U;
+static uint8_t g_finish_confirm_count = 0U;
 
 void Maze_SendStatusNow(void)
 {
@@ -68,7 +71,9 @@ static void Maze_DelayWithUart(uint32_t ms)
 void Maze_Init(void)
 {
     Motor_Stop();
-    g_turn_lock_side = MAZE_TURN_LOCK_NONE;
+    g_maze_state = MAZE_STATE_FORWARD;
+    g_state_elapsed_ms = 0U;
+    g_finish_confirm_count = 0U;
 #if UART_STATUS_ENABLE
     g_uart_status_elapsed_ms = UART_STATUS_INTERVAL_MS;
 #endif
@@ -105,29 +110,46 @@ static uint8_t Maze_IsFrontSafe(const SensorState_t *s, uint16_t safe_cm)
     return (s->front_valid && s->front_cm > safe_cm) ? 1U : 0U;
 }
 
-static void Maze_StartTurnLock(uint8_t side)
+static void Maze_SetState(uint8_t state)
 {
-    g_turn_lock_side = side;
+    g_maze_state = state;
+    g_state_elapsed_ms = 0U;
+    g_finish_confirm_count = 0U;
 }
 
-static void Maze_ClearTurnLock(void)
+static uint8_t Maze_ConfirmFinish(uint8_t condition)
 {
-    g_turn_lock_side = MAZE_TURN_LOCK_NONE;
+    if (condition)
+    {
+        if (g_finish_confirm_count < MAZE_IR_CONFIRM_COUNT)
+        {
+            g_finish_confirm_count++;
+        }
+    }
+    else
+    {
+        g_finish_confirm_count = 0U;
+    }
+
+    return (g_finish_confirm_count >= MAZE_IR_CONFIRM_COUNT) ? 1U : 0U;
 }
 
-static uint8_t Maze_TurnLockSideBlocked(const SensorState_t *s)
+static void Maze_StopFor(uint16_t ms)
 {
-    if (g_turn_lock_side == MAZE_TURN_LOCK_LEFT)
+    Motor_Stop();
+    Maze_DelayWithUart(ms);
+}
+
+static uint16_t Maze_LimitStep(uint16_t elapsed_ms, uint16_t max_ms, uint16_t step_ms)
+{
+    uint16_t remain_ms = (elapsed_ms < max_ms) ? (uint16_t)(max_ms - elapsed_ms) : 0U;
+
+    if (remain_ms == 0U)
     {
-        return s->left_blocked;
+        return 0U;
     }
 
-    if (g_turn_lock_side == MAZE_TURN_LOCK_RIGHT)
-    {
-        return s->right_blocked;
-    }
-
-    return 1U;
+    return (remain_ms > step_ms) ? step_ms : remain_ms;
 }
 
 static void Maze_ForwardOneLoop(const SensorState_t *s)
@@ -151,21 +173,17 @@ static uint8_t Maze_GoForwardChecked(uint16_t ms, uint16_t pwm, uint16_t safe_cm
         uint16_t step_ms;
         SensorState_t s = Maze_ReadSensorState();
 
-        // 前方障碍物检测，不安全则停止并返回
         if (!Maze_IsFrontSafe(&s, safe_cm))
         {
-            Motor_Stop();
-            Maze_DelayWithUart(80U);
+            Maze_StopFor(80U);
             return 0U;
         }
 
-        // 前进一段后停止，分段执行以实现周期性检测
         step_ms = (ms > MAZE_FORWARD_CHECK_STEP_MS) ? MAZE_FORWARD_CHECK_STEP_MS : ms;
         Motor_Forward(pwm);
         Maze_DelayWithUart(step_ms);
         Motor_Stop();
 
-        // 多段前进时插入暂停间隔
         if (ms > step_ms)
         {
             Maze_DelayWithUart(MAZE_FORWARD_CHECK_PAUSE_MS);
@@ -174,19 +192,8 @@ static uint8_t Maze_GoForwardChecked(uint16_t ms, uint16_t pwm, uint16_t safe_cm
         ms = (uint16_t)(ms - step_ms);
     }
 
-    Motor_Stop();
-    Maze_DelayWithUart(80U);
+    Maze_StopFor(80U);
     return 1U;
-}
-
-static void Maze_DelayBeforeTurnIfClear(const SensorState_t *s)
-{
-    if (Maze_IsFrontSafe(s, FRONT_SAFE_DISTANCE_CM))
-    {
-        (void)Maze_GoForwardChecked(MAZE_TURN_DELAY_FORWARD_MS,
-                                    MOTOR_TURN_DELAY_PWM,
-                                    FRONT_SAFE_DISTANCE_CM);
-    }
 }
 
 static void Maze_PostTurnForwardIfClear(void)
@@ -201,210 +208,189 @@ static void Maze_PostTurnForwardIfClear(void)
     }
 }
 
-static void Maze_PulsedLeftTurn(uint16_t total_ms, uint16_t inner_pwm, uint16_t outer_pwm)
+static void Maze_BeginTurn(uint8_t state, const SensorState_t *s)
 {
-    while (total_ms > 0U)
-    {
-        uint16_t step_ms = (total_ms > MAZE_TURN_STEP_MS) ? MAZE_TURN_STEP_MS : total_ms;
-
-        Motor_LeftTurn(inner_pwm, outer_pwm);
-        Maze_DelayWithUart(step_ms);
-        Motor_Stop();
-
-        total_ms = (uint16_t)(total_ms - step_ms);
-
-        if (total_ms > 0U)
-        {
-            Maze_DelayWithUart(MAZE_TURN_STEP_PAUSE_MS);
-        }
-    }
+    (void)s;
+    Maze_StopFor(MAZE_STOP_BEFORE_TURN_MS);
+    Maze_SetState(state);
 }
 
-static void Maze_PulsedRightTurn(uint16_t total_ms, uint16_t inner_pwm, uint16_t outer_pwm)
+static void Maze_FinishTurn(void)
 {
-    while (total_ms > 0U)
-    {
-        uint16_t step_ms = (total_ms > MAZE_TURN_STEP_MS) ? MAZE_TURN_STEP_MS : total_ms;
-
-        Motor_RightTurn(inner_pwm, outer_pwm);
-        Maze_DelayWithUart(step_ms);
-        Motor_Stop();
-
-        total_ms = (uint16_t)(total_ms - step_ms);
-
-        if (total_ms > 0U)
-        {
-            Maze_DelayWithUart(MAZE_TURN_STEP_PAUSE_MS);
-        }
-    }
+    Maze_StopFor(MAZE_TURN_STEP_PAUSE_MS);
+    Maze_SetState(MAZE_STATE_FORWARD);
+    Maze_PostTurnForwardIfClear();
 }
 
-static uint8_t Maze_TurnBackUntilFrontClear(void)
+static uint8_t Maze_ForwardIfBothSideLost(const SensorState_t *s)
 {
-    uint16_t elapsed_ms = 0U;
-
-    while (elapsed_ms < MAZE_TURN_BACK_MAX_MS)
+    if (!s->left_blocked &&
+        !s->right_blocked &&
+        Maze_IsFrontSafe(s, FRONT_SAFE_DISTANCE_CM))
     {
-        uint16_t step_ms = (uint16_t)(MAZE_TURN_BACK_MAX_MS - elapsed_ms);
-        SensorState_t s;
+        uint16_t step_ms = Maze_LimitStep(g_state_elapsed_ms,
+                                          MAZE_TURN_MAX_MS,
+                                          MAZE_TURN_LOST_FORWARD_MS);
 
-        if (step_ms > MAZE_TURN_BACK_STEP_MS)
+        if (step_ms == 0U)
         {
-            step_ms = MAZE_TURN_BACK_STEP_MS;
+            return 0U;
         }
 
-        Motor_SpinLeft(MOTOR_TURN_BACK_SPIN_PWM);
+        Motor_Forward(MOTOR_TURN_LOST_PWM);
         Maze_DelayWithUart(step_ms);
         Motor_Stop();
-
-        elapsed_ms = (uint16_t)(elapsed_ms + step_ms);
-        Maze_DelayWithUart(MAZE_TURN_BACK_CHECK_PAUSE_MS);
-
-        s = Maze_ReadSensorState();
-        if (Maze_IsFrontSafe(&s, FRONT_TURN_BACK_CLEAR_CM))
-        {
-            return 1U;
-        }
+        g_state_elapsed_ms = (uint16_t)(g_state_elapsed_ms + step_ms);
+        Maze_DelayWithUart(MAZE_TURN_STEP_PAUSE_MS);
+        return 1U;
     }
 
     return 0U;
 }
 
-static void Maze_Right90(const SensorState_t *s)
+static void Maze_RunLeftTurn(const SensorState_t *s)
 {
+    uint16_t step_ms;
+
+    if ((g_state_elapsed_ms >= MAZE_TURN_MIN_MS) &&
+        Maze_ConfirmFinish(s->left_blocked))
+    {
+        Maze_FinishTurn();
+        return;
+    }
+
+    if (g_state_elapsed_ms >= MAZE_TURN_MAX_MS)
+    {
+        Maze_FinishTurn();
+        return;
+    }
+
+    if (Maze_ForwardIfBothSideLost(s))
+    {
+        return;
+    }
+
+    step_ms = Maze_LimitStep(g_state_elapsed_ms, MAZE_TURN_MAX_MS, MAZE_TURN_STEP_MS);
+    Motor_LeftTurn(MOTOR_TURN_INNER_PWM, MOTOR_TURN_OUTER_PWM);
+    Maze_DelayWithUart(step_ms);
     Motor_Stop();
-    Maze_DelayWithUart(MAZE_STOP_BEFORE_TURN_MS);
-
-    /* 检测到需要转弯后，先低速前进一小段，让车身更深入路口再转。 */
-    Maze_DelayBeforeTurnIfClear(s);
-
-    /* 差速右转：左轮快、右轮慢，保留侧墙参考，避免原地甩头。 */
-    Maze_PulsedRightTurn(MAZE_TURN_90_MS,
-                         MOTOR_TURN_INNER_PWM,
-                         MOTOR_TURN_OUTER_PWM);
-
-    Motor_Stop();
-    Maze_DelayWithUart(100U);
-    Maze_StartTurnLock(MAZE_TURN_LOCK_RIGHT);
-
-    /* 转向后向新通道内走一点，避免传感器还在路口边缘反复触发 */
-    Maze_PostTurnForwardIfClear();
+    g_state_elapsed_ms = (uint16_t)(g_state_elapsed_ms + step_ms);
+    Maze_DelayWithUart(MAZE_TURN_STEP_PAUSE_MS);
 }
 
-static void Maze_Left90(const SensorState_t *s)
+static void Maze_RunRightTurn(const SensorState_t *s)
 {
+    uint16_t step_ms;
+
+    if ((g_state_elapsed_ms >= MAZE_TURN_MIN_MS) &&
+        Maze_ConfirmFinish(s->right_blocked))
+    {
+        Maze_FinishTurn();
+        return;
+    }
+
+    if (g_state_elapsed_ms >= MAZE_TURN_MAX_MS)
+    {
+        Maze_FinishTurn();
+        return;
+    }
+
+    if (Maze_ForwardIfBothSideLost(s))
+    {
+        return;
+    }
+
+    step_ms = Maze_LimitStep(g_state_elapsed_ms, MAZE_TURN_MAX_MS, MAZE_TURN_STEP_MS);
+    Motor_RightTurn(MOTOR_TURN_INNER_PWM, MOTOR_TURN_OUTER_PWM);
+    Maze_DelayWithUart(step_ms);
     Motor_Stop();
-    Maze_DelayWithUart(MAZE_STOP_BEFORE_TURN_MS);
-
-    Maze_DelayBeforeTurnIfClear(s);
-
-    /* 差速左转：右轮快、左轮慢，保留侧墙参考，避免原地甩头。 */
-    Maze_PulsedLeftTurn(MAZE_TURN_90_MS,
-                        MOTOR_TURN_INNER_PWM,
-                        MOTOR_TURN_OUTER_PWM);
-
-    Motor_Stop();
-    Maze_DelayWithUart(100U);
-    Maze_StartTurnLock(MAZE_TURN_LOCK_LEFT);
-
-    Maze_PostTurnForwardIfClear();
+    g_state_elapsed_ms = (uint16_t)(g_state_elapsed_ms + step_ms);
+    Maze_DelayWithUart(MAZE_TURN_STEP_PAUSE_MS);
 }
 
-static void Maze_TurnBack(void)
+static void Maze_RunTurnBack(const SensorState_t *s)
 {
+    uint16_t step_ms;
+
+    if ((g_state_elapsed_ms >= MAZE_TURN_BACK_MIN_MS) &&
+        Maze_ConfirmFinish(Maze_IsFrontSafe(s, FRONT_TURN_BACK_CLEAR_CM)))
+    {
+        Maze_FinishTurn();
+        return;
+    }
+
+    if (g_state_elapsed_ms >= MAZE_TURN_BACK_MAX_MS)
+    {
+        Maze_FinishTurn();
+        return;
+    }
+
+    step_ms = Maze_LimitStep(g_state_elapsed_ms,
+                             MAZE_TURN_BACK_MAX_MS,
+                             MAZE_TURN_BACK_STEP_MS);
+    Motor_SpinLeft(MOTOR_TURN_BACK_SPIN_PWM);
+    Maze_DelayWithUart(step_ms);
     Motor_Stop();
-    Maze_DelayWithUart(MAZE_STOP_BEFORE_TURN_MS);
+    g_state_elapsed_ms = (uint16_t)(g_state_elapsed_ms + step_ms);
+    Maze_DelayWithUart(MAZE_TURN_BACK_CHECK_PAUSE_MS);
+}
 
-    /*
-     * 原地左旋掉头：左轮反转、右轮正转。
-     * 每小段动作后重新测距，前方恢复到 FRONT_TURN_BACK_CLEAR_CM 以上就退出。
-     */
-    (void)Maze_TurnBackUntilFrontClear();
-
-    Motor_Stop();
-    Maze_DelayWithUart(120U);
-    Maze_StartTurnLock(MAZE_TURN_LOCK_LEFT);
-
-    Maze_PostTurnForwardIfClear();
+static void Maze_RunMotionState(const SensorState_t *s)
+{
+    if (g_maze_state == MAZE_STATE_TURN_LEFT)
+    {
+        Maze_RunLeftTurn(s);
+    }
+    else if (g_maze_state == MAZE_STATE_TURN_RIGHT)
+    {
+        Maze_RunRightTurn(s);
+    }
+    else if (g_maze_state == MAZE_STATE_TURN_BACK)
+    {
+        Maze_RunTurnBack(s);
+    }
 }
 
 /**
   * @brief 迷宫寻迹主任务。
   *
-  * 本版修改点：
-  * 1. 右红外管脚保持 PA11；
-  * 2. 红外检测到障碍物为低电平；
-  * 3. USART1 使用 PA9/PA10，每 0.3 s 输出一次传感器和电机 PWM 状态；
-  * 4. 左转、右转、掉头均采用差速转弯，避免原地甩头导致红外丢墙；
-  * 5. 算法由右手原则改为左手原则；
-  * 6. 转弯后锁定触发转弯的一侧，直到该侧红外重新检测到墙后才允许新转弯。
-  *
-  * 左手原则决策顺序：
-  * 1. 左侧无障碍：优先左转；
-  * 2. 左侧有障碍但前方安全：继续前进；
-  * 3. 左侧和前方不可通行但右侧无障碍：右转；
-  * 4. 左、前、右均不可通行：原地左旋掉头。
+  * 当前算法为显式状态机：
+  * 1. 普通前进状态按左手原则选择下一动作；
+  * 2. 一旦进入左转、右转或掉头状态，动作完成前不重新执行路口决策；
+  * 3. 左右转达到最小时间后，等待对应侧红外连续检测到墙再退出；
+  * 4. 若传感器没有确认完成，则达到最大时间后兜底退出；
+  * 5. 掉头达到最小时间后，前方超声波连续恢复安全距离即退出。
   */
 void Maze_Task(void)
 {
     SensorState_t s = Maze_ReadSensorState();
 
-    uint8_t front_safe = Maze_IsFrontSafe(&s, FRONT_SAFE_DISTANCE_CM);
+    if (g_maze_state != MAZE_STATE_FORWARD)
+    {
+        Maze_RunMotionState(&s);
+        return;
+    }
 
     if (!s.front_valid)
     {
-        Motor_Stop();
-        Maze_ClearTurnLock();
-        Maze_DelayWithUart(MAZE_SENSOR_FAULT_RETRY_MS);
+        Maze_StopFor(MAZE_SENSOR_FAULT_RETRY_MS);
         return;
     }
 
-    if (g_turn_lock_side != MAZE_TURN_LOCK_NONE)
-    {
-        if (Maze_TurnLockSideBlocked(&s))
-        {
-            Maze_ClearTurnLock();
-            Motor_Stop();
-            Maze_DelayWithUart(MAZE_FORWARD_CHECK_PAUSE_MS);
-        }
-        else
-        {
-            if (g_turn_lock_side == MAZE_TURN_LOCK_LEFT)
-            {
-                Maze_PulsedLeftTurn(MAZE_TURN_STEP_MS,
-                                    MOTOR_TURN_INNER_PWM,
-                                    MOTOR_TURN_OUTER_PWM);
-                Motor_Stop();
-                Maze_DelayWithUart(MAZE_TURN_STEP_PAUSE_MS);
-            }
-            else
-            {
-                Maze_PulsedRightTurn(MAZE_TURN_STEP_MS,
-                                     MOTOR_TURN_INNER_PWM,
-                                     MOTOR_TURN_OUTER_PWM);
-                Motor_Stop();
-                Maze_DelayWithUart(MAZE_TURN_STEP_PAUSE_MS);
-            }
-        }
-
-        return;
-    }
-
-    /* 左手优先：左侧没有障碍时，优先进入左侧通道 */
     if (!s.left_blocked)
     {
-        Maze_Left90(&s);
+        Maze_BeginTurn(MAZE_STATE_TURN_LEFT, &s);
     }
-    else if (front_safe)
+    else if (Maze_IsFrontSafe(&s, FRONT_SAFE_DISTANCE_CM))
     {
         Maze_ForwardOneLoop(&s);
     }
     else if (!s.right_blocked)
     {
-        Maze_Right90(&s);
+        Maze_BeginTurn(MAZE_STATE_TURN_RIGHT, &s);
     }
     else
     {
-        Maze_TurnBack();
+        Maze_BeginTurn(MAZE_STATE_TURN_BACK, &s);
     }
 }
