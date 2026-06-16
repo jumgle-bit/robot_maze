@@ -93,7 +93,7 @@
 #define MAZE_POST_TURN_FORWARD_MS 220
 #define MAZE_TURN_STEP_MS         220
 #define MAZE_TURN_STEP_PAUSE_MS   20
-#define MAZE_TURN_90_MS           720
+#define MAZE_TURN_90_MS           1000
 #define MAZE_TURN_BACK_STEP_MS    80
 #define MAZE_TURN_BACK_CHECK_PAUSE_MS 20
 #define MAZE_TURN_BACK_MAX_MS     1500

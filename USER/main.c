@@ -23,6 +23,7 @@
 #include "maze.h"
 #include "config.h"
 
+// 程序主入口：初始化外设后，循环运行迷宫控制任务。
 int main(void)
 {
     /* SystemInit() 已在启动文件中执行，这里初始化项目外设 */

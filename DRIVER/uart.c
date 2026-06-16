@@ -10,6 +10,7 @@
  */
 
 #if UART_STATUS_ENABLE
+// 以十进制文本形式发送一个无符号整数。
 static void UART1_SendUint(uint16_t value)
 {
     char buf[6];
@@ -33,6 +34,7 @@ static void UART1_SendUint(uint16_t value)
     }
 }
 
+// 发送带正负号的 PWM 值，便于串口观察电机方向和速度。
 static void UART1_SendSignedPwm(int16_t value)
 {
     if (value > 0)
@@ -51,6 +53,7 @@ static void UART1_SendSignedPwm(int16_t value)
     }
 }
 
+// 把超声波最近一次错误码转换成可读字符串输出。
 static void UART1_SendUltrasonicError(void)
 {
     UART1_SendString(",US_ERR=");
@@ -79,6 +82,7 @@ static void UART1_SendUltrasonicError(void)
 }
 #endif
 
+// 初始化 USART1，使用 PA9 发送、PA10 接收。
 void UART1_Init(uint32_t baudrate)
 {
     uint32_t brr;
@@ -105,6 +109,7 @@ void UART1_Init(uint32_t baudrate)
     USART1->CR1 |= USART_CR1_UE;
 }
 
+// 阻塞发送 1 个字符，等待发送寄存器空后写入数据。
 void UART1_SendChar(char ch)
 {
     while ((USART1->SR & USART_SR_TXE) == 0U)
@@ -115,6 +120,7 @@ void UART1_SendChar(char ch)
     USART1->DR = (uint16_t)ch;
 }
 
+// 发送以 '\0' 结尾的字符串。
 void UART1_SendString(const char *str)
 {
     while ((str != 0) && (*str != '\0'))
@@ -123,6 +129,7 @@ void UART1_SendString(const char *str)
     }
 }
 
+// 单独输出一次超声波距离，保留给调试测距时使用。
 void UART1_SendDistanceCm(uint16_t cm)
 {
 #if UART_STATUS_ENABLE
@@ -134,6 +141,7 @@ void UART1_SendDistanceCm(uint16_t cm)
 #endif
 }
 
+// 输出完整状态行：超声波、红外状态、左右电机带符号 PWM。
 void UART1_SendRobotStatus(uint16_t cm,
                            uint8_t ultrasonic_valid,
                            uint8_t left_blocked,

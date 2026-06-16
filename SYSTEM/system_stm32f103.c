@@ -7,6 +7,7 @@
  */
 uint32_t SystemCoreClock = 8000000UL;
 
+// 启动阶段调用的系统初始化：保持 HSI 8 MHz，并关闭 JTAG 保留 SWD。
 void SystemInit(void)
 {
     /* 使能 HSI，并保持系统时钟来源为 HSI */
@@ -22,6 +23,7 @@ void SystemInit(void)
     AFIO->MAPR |=  (0x2UL << 24); /* SWJ_CFG = 010: JTAG-DP Disabled and SW-DP Enabled */
 }
 
+// 刷新 SystemCoreClock 变量，本工程固定为 8 MHz HSI。
 void SystemCoreClockUpdate(void)
 {
     SystemCoreClock = 8000000UL;

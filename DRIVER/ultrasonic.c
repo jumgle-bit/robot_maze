@@ -18,6 +18,7 @@ static uint8_t g_last_error = 0U;
 static uint8_t g_has_triggered = 0U;
 static uint16_t g_last_trigger_us = 0U;
 
+// 等待 ECHO 引脚变成指定电平，超时返回失败。
 static uint8_t Ultrasonic_WaitEchoLevel(uint8_t expected_level, uint16_t timeout_us)
 {
     uint16_t start = Delay_GetMicros16();
@@ -33,6 +34,7 @@ static uint8_t Ultrasonic_WaitEchoLevel(uint8_t expected_level, uint16_t timeout
     return 1U;
 }
 
+// 保证两次超声波触发之间有足够间隔，避免模块回波互相干扰。
 static void Ultrasonic_WaitForTriggerInterval(void)
 {
     if (g_has_triggered)
@@ -45,6 +47,7 @@ static void Ultrasonic_WaitForTriggerInterval(void)
     }
 }
 
+// 初始化 HC-SR04 的 TRIG/PB14 输出和 ECHO/PB15 输入。
 void Ultrasonic_Init(void)
 {
     RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;
@@ -59,6 +62,7 @@ void Ultrasonic_Init(void)
     g_has_triggered = 0U;
 }
 
+// 执行一次完整测距流程，返回未做范围过滤的厘米值。
 static uint16_t Ultrasonic_ReadRawCm(void)
 {
     uint16_t start;
@@ -106,6 +110,7 @@ static uint16_t Ultrasonic_ReadRawCm(void)
     return (uint16_t)(width_us / 58U);
 }
 
+// 读取前方距离并做最小/最大范围过滤，失败时返回 0。
 uint16_t Ultrasonic_ReadFrontCm(void)
 {
     uint16_t cm = Ultrasonic_ReadRawCm();
@@ -125,16 +130,19 @@ uint16_t Ultrasonic_ReadFrontCm(void)
     return 0U;
 }
 
+// 返回最近一次测距结果是否有效，供迷宫逻辑和串口输出判断。
 uint8_t Ultrasonic_LastReadValid(void)
 {
     return g_last_read_valid;
 }
 
+// 返回最近一次测距错误码，用于串口打印 INVALID 原因。
 uint8_t Ultrasonic_LastError(void)
 {
     return g_last_error;
 }
 
+// 快速判断前方距离是否大于安全阈值。
 uint8_t Ultrasonic_IsFrontClear(uint16_t safe_cm)
 {
     return (Ultrasonic_ReadFrontCm() > safe_cm) ? 1U : 0U;

@@ -22,6 +22,7 @@ static SensorState_t g_last_sensor_state = {0U, 0U, 0U, 0U};
 
 static uint8_t g_turn_lock_side = MAZE_TURN_LOCK_NONE;
 
+// 立即通过 USART1 输出一次最近缓存的传感器和电机 PWM 状态。
 void Maze_SendStatusNow(void)
 {
 #if UART_STATUS_ENABLE
@@ -34,6 +35,7 @@ void Maze_SendStatusNow(void)
 #endif
 }
 
+// 由延时函数周期调用，累计到设定间隔后自动输出一次运行状态。
 static void Maze_UARTStatusTask(uint16_t elapsed_ms)
 {
 #if UART_STATUS_ENABLE
@@ -49,6 +51,7 @@ static void Maze_UARTStatusTask(uint16_t elapsed_ms)
 #endif
 }
 
+// 带串口状态刷新能力的毫秒延时，避免长动作期间串口完全不输出。
 static void Maze_DelayWithUart(uint32_t ms)
 {
     while (ms >= 10U)
@@ -65,6 +68,7 @@ static void Maze_DelayWithUart(uint32_t ms)
     }
 }
 
+// 初始化迷宫控制层状态，确保电机停止并清除转弯锁定。
 void Maze_Init(void)
 {
     Motor_Stop();
@@ -78,6 +82,7 @@ void Maze_Init(void)
   * @brief 读取当前迷宫状态。
   * @note  输出形式：前方连续距离和有效状态 + 左右红外通断状态。
   */
+// 读取一次前方超声波、左右红外，并更新串口输出使用的缓存状态。
 SensorState_t Maze_ReadSensorState(void)
 {
     SensorState_t s;
@@ -100,21 +105,25 @@ SensorState_t Maze_ReadSensorState(void)
     return s;
 }
 
+// 判断前方距离是否有效且大于给定安全阈值。
 static uint8_t Maze_IsFrontSafe(const SensorState_t *s, uint16_t safe_cm)
 {
     return (s->front_valid && s->front_cm > safe_cm) ? 1U : 0U;
 }
 
+// 转弯后锁定触发转弯的那一侧，防止车还在路口边缘时反复转弯。
 static void Maze_StartTurnLock(uint8_t side)
 {
     g_turn_lock_side = side;
 }
 
+// 清除转弯锁定，允许下一次按左手原则重新判断路口。
 static void Maze_ClearTurnLock(void)
 {
     g_turn_lock_side = MAZE_TURN_LOCK_NONE;
 }
 
+// 检查当前被锁定的一侧是否已经重新检测到墙。
 static uint8_t Maze_TurnLockSideBlocked(const SensorState_t *s)
 {
     if (g_turn_lock_side == MAZE_TURN_LOCK_LEFT)
@@ -130,6 +139,7 @@ static uint8_t Maze_TurnLockSideBlocked(const SensorState_t *s)
     return 1U;
 }
 
+// 执行一个主循环周期的直行，根据前方距离选择正常速度或低速。
 static void Maze_ForwardOneLoop(const SensorState_t *s)
 {
     if (s->front_cm < FRONT_SLOW_DISTANCE_CM)
@@ -144,6 +154,7 @@ static void Maze_ForwardOneLoop(const SensorState_t *s)
     Maze_DelayWithUart(MAZE_LOOP_DELAY_MS);
 }
 
+// 分段前进并持续检测前方安全距离，发现危险立即停车返回失败。
 static uint8_t Maze_GoForwardChecked(uint16_t ms, uint16_t pwm, uint16_t safe_cm)
 {
     while (ms > 0U)
@@ -179,6 +190,7 @@ static uint8_t Maze_GoForwardChecked(uint16_t ms, uint16_t pwm, uint16_t safe_cm
     return 1U;
 }
 
+// 如果前方仍安全，在转弯前低速往前挪一小段，让车身进入路口。
 static void Maze_DelayBeforeTurnIfClear(const SensorState_t *s)
 {
     if (Maze_IsFrontSafe(s, FRONT_SAFE_DISTANCE_CM))
@@ -189,6 +201,7 @@ static void Maze_DelayBeforeTurnIfClear(const SensorState_t *s)
     }
 }
 
+// 转弯完成后，如果前方安全则短距离前进，减少在路口重复触发。
 static void Maze_PostTurnForwardIfClear(void)
 {
     SensorState_t s = Maze_ReadSensorState();
@@ -201,6 +214,7 @@ static void Maze_PostTurnForwardIfClear(void)
     }
 }
 
+// 将左转拆成多个短脉冲动作，便于蠕动式修正角度。
 static void Maze_PulsedLeftTurn(uint16_t total_ms, uint16_t inner_pwm, uint16_t outer_pwm)
 {
     while (total_ms > 0U)
@@ -220,6 +234,7 @@ static void Maze_PulsedLeftTurn(uint16_t total_ms, uint16_t inner_pwm, uint16_t 
     }
 }
 
+// 将右转拆成多个短脉冲动作，和左转一样采用内轮慢、外轮快。
 static void Maze_PulsedRightTurn(uint16_t total_ms, uint16_t inner_pwm, uint16_t outer_pwm)
 {
     while (total_ms > 0U)
@@ -239,6 +254,7 @@ static void Maze_PulsedRightTurn(uint16_t total_ms, uint16_t inner_pwm, uint16_t
     }
 }
 
+// 死路时分段左旋掉头，每小段后检测前方是否已经重新变安全。
 static uint8_t Maze_TurnBackUntilFrontClear(void)
 {
     uint16_t elapsed_ms = 0U;
@@ -270,6 +286,7 @@ static uint8_t Maze_TurnBackUntilFrontClear(void)
     return 0U;
 }
 
+// 执行一次右 90 度差速转弯，并在完成后进入右侧转弯锁定。
 static void Maze_Right90(const SensorState_t *s)
 {
     Motor_Stop();
@@ -291,6 +308,7 @@ static void Maze_Right90(const SensorState_t *s)
     Maze_PostTurnForwardIfClear();
 }
 
+// 执行一次左 90 度差速转弯，并在完成后进入左侧转弯锁定。
 static void Maze_Left90(const SensorState_t *s)
 {
     Motor_Stop();
@@ -310,6 +328,7 @@ static void Maze_Left90(const SensorState_t *s)
     Maze_PostTurnForwardIfClear();
 }
 
+// 当前方、左侧、右侧都不可通行时执行掉头动作。
 static void Maze_TurnBack(void)
 {
     Motor_Stop();
@@ -345,6 +364,7 @@ static void Maze_TurnBack(void)
   * 3. 左侧和前方不可通行但右侧无障碍：右转；
   * 4. 左、前、右均不可通行：原地左旋掉头。
   */
+// 主迷宫任务：按左手原则决定左转、直行、右转或掉头。
 void Maze_Task(void)
 {
     SensorState_t s = Maze_ReadSensorState();
