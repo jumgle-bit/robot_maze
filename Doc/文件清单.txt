@@ -1,25 +1,51 @@
-APP/maze.c
-APP/maze.h
-CORE/startup_stm32f103c8tx.s
-DRIVER/bsp_gpio.c
+# 项目文件清单
+
+## 应用层
+
+APP/maze.c    迷宫状态机与左手原则运动逻辑
+APP/maze.h    迷宫状态结构和对外接口
+
+## 用户层
+
+USER/main.c      外设初始化和主循环入口
+USER/config.h    全局调参配置
+
+## 驱动层
+
+DRIVER/bsp_gpio.c      GPIO 基础操作
 DRIVER/bsp_gpio.h
-DRIVER/delay.c
+DRIVER/delay.c         SysTick 延时和微秒计时
 DRIVER/delay.h
-DRIVER/ir_sensor.c
+DRIVER/ir_sensor.c     左右红外传感器读取，PA12/PA11
 DRIVER/ir_sensor.h
-DRIVER/motor.c
+DRIVER/motor.c         L298N 电机方向和 PWM 控制
 DRIVER/motor.h
-DRIVER/ultrasonic.c
+DRIVER/ultrasonic.c    HC-SR04 超声波测距，PB14/PB15
 DRIVER/ultrasonic.h
-Doc/管脚与调参说明.md
-MDK-ARM/MazeRobot.uvmpw
-MDK-ARM/MazeRobot.uvoptx
-MDK-ARM/MazeRobot.uvprojx
-README.md
-SYSTEM/stm32f103_min.h
-SYSTEM/system_stm32f103.c
+DRIVER/uart.c          USART1 状态输出，PA9/PA10
+DRIVER/uart.h
+
+## 系统层
+
+SYSTEM/stm32f103_min.h       STM32F103 最小寄存器定义
+SYSTEM/system_stm32f103.c    系统时钟初始化
 SYSTEM/system_stm32f103.h
-USER/config.h
-USER/main.c
-DRIVER/uart.c    USART1 串口发送驱动，PA9/PA10，实时发送超声波距离
-DRIVER/uart.h    USART1 串口发送驱动头文件
+CORE/startup_stm32f103c8tx.s 启动文件
+
+## 文档
+
+README.md                 项目总说明
+Doc/管脚与调参说明.md     接线和调参说明
+Doc/文件清单.txt          本文件
+
+## Keil 工程
+
+MDK-ARM/MazeRobot.uvprojx  Keil5 工程文件
+MDK-ARM/MazeRobot.uvoptx   Keil 用户/调试配置
+MDK-ARM/MazeRobot.uvmpw    Keil 工作区
+MDK-ARM/DebugConfig/       调试配置
+
+## Keil 输出
+
+Objects/    编译目标文件、hex、axf、依赖和构建日志
+Listings/   map 和 listing 输出

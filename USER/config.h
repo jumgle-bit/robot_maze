@@ -37,8 +37,8 @@
 #define MOTOR_TURN_LOST_PWM       560    /* 转弯中两侧都丢墙时，补位前进 PWM */
 
 /* 差速 90°转弯 PWM：内侧轮慢，外侧轮快，避免原地甩头 */
-#define MOTOR_TURN_INNER_PWM      560   /* 90°差速转弯时，内侧轮 PWM */
-#define MOTOR_TURN_OUTER_PWM      930   /* 90°差速转弯时，外侧轮 PWM */
+#define MOTOR_TURN_INNER_PWM      550   /* 90°差速转弯时，内侧轮 PWM */
+#define MOTOR_TURN_OUTER_PWM      950   /* 90°差速转弯时，外侧轮 PWM */
 
 /* 原地掉头 PWM：一侧正转、一侧反转 */
 #define MOTOR_TURN_BACK_SPIN_PWM  650   /* 原地掉头时，两侧轮正反转 PWM */

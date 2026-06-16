@@ -460,52 +460,52 @@ Image Symbol Table
     i.Maze_StopFor                           0x08000810   Section        0  maze.o(i.Maze_StopFor)
     Maze_StopFor                             0x08000811   Thumb Code    16  maze.o(i.Maze_StopFor)
     i.Maze_Task                              0x08000820   Section        0  maze.o(i.Maze_Task)
-    i.Maze_UARTStatusTask                    0x080008b0   Section        0  maze.o(i.Maze_UARTStatusTask)
-    Maze_UARTStatusTask                      0x080008b1   Thumb Code    36  maze.o(i.Maze_UARTStatusTask)
-    i.Motor_ApplyTrim                        0x080008d8   Section        0  motor.o(i.Motor_ApplyTrim)
-    Motor_ApplyTrim                          0x080008d9   Thumb Code    28  motor.o(i.Motor_ApplyTrim)
-    i.Motor_Forward                          0x080008f4   Section        0  motor.o(i.Motor_Forward)
-    i.Motor_GetLeftPwm                       0x08000908   Section        0  motor.o(i.Motor_GetLeftPwm)
-    i.Motor_GetRightPwm                      0x08000914   Section        0  motor.o(i.Motor_GetRightPwm)
-    i.Motor_Init                             0x08000920   Section        0  motor.o(i.Motor_Init)
-    i.Motor_LeftTurn                         0x080009e8   Section        0  motor.o(i.Motor_LeftTurn)
-    i.Motor_LimitPwm                         0x080009fc   Section        0  motor.o(i.Motor_LimitPwm)
-    Motor_LimitPwm                           0x080009fd   Thumb Code    18  motor.o(i.Motor_LimitPwm)
-    i.Motor_RightTurn                        0x08000a0e   Section        0  motor.o(i.Motor_RightTurn)
-    i.Motor_SetLeft                          0x08000a24   Section        0  motor.o(i.Motor_SetLeft)
-    i.Motor_SetLeftDir                       0x08000a78   Section        0  motor.o(i.Motor_SetLeftDir)
-    Motor_SetLeftDir                         0x08000a79   Thumb Code    66  motor.o(i.Motor_SetLeftDir)
-    i.Motor_SetLeftPwm                       0x08000ac0   Section        0  motor.o(i.Motor_SetLeftPwm)
-    Motor_SetLeftPwm                         0x08000ac1   Thumb Code    24  motor.o(i.Motor_SetLeftPwm)
-    i.Motor_SetRight                         0x08000ad8   Section        0  motor.o(i.Motor_SetRight)
-    i.Motor_SetRightDir                      0x08000b2c   Section        0  motor.o(i.Motor_SetRightDir)
-    Motor_SetRightDir                        0x08000b2d   Thumb Code    66  motor.o(i.Motor_SetRightDir)
-    i.Motor_SetRightPwm                      0x08000b74   Section        0  motor.o(i.Motor_SetRightPwm)
-    Motor_SetRightPwm                        0x08000b75   Thumb Code    24  motor.o(i.Motor_SetRightPwm)
-    i.Motor_SpinLeft                         0x08000b8c   Section        0  motor.o(i.Motor_SpinLeft)
-    i.Motor_Stop                             0x08000ba0   Section        0  motor.o(i.Motor_Stop)
-    i.SystemInit                             0x08000bb0   Section        0  system_stm32f103.o(i.SystemInit)
-    i.UART1_Init                             0x08000c00   Section        0  uart.o(i.UART1_Init)
-    i.UART1_SendChar                         0x08000c70   Section        0  uart.o(i.UART1_SendChar)
-    i.UART1_SendRobotStatus                  0x08000c8c   Section        0  uart.o(i.UART1_SendRobotStatus)
-    i.UART1_SendSignedPwm                    0x08000d5c   Section        0  uart.o(i.UART1_SendSignedPwm)
-    UART1_SendSignedPwm                      0x08000d5d   Thumb Code    50  uart.o(i.UART1_SendSignedPwm)
-    i.UART1_SendString                       0x08000d8e   Section        0  uart.o(i.UART1_SendString)
-    i.UART1_SendUint                         0x08000da6   Section        0  uart.o(i.UART1_SendUint)
-    UART1_SendUint                           0x08000da7   Thumb Code    78  uart.o(i.UART1_SendUint)
-    i.UART1_SendUltrasonicError              0x08000df4   Section        0  uart.o(i.UART1_SendUltrasonicError)
-    UART1_SendUltrasonicError                0x08000df5   Thumb Code    78  uart.o(i.UART1_SendUltrasonicError)
-    i.Ultrasonic_Init                        0x08000e90   Section        0  ultrasonic.o(i.Ultrasonic_Init)
-    i.Ultrasonic_LastError                   0x08000ee8   Section        0  ultrasonic.o(i.Ultrasonic_LastError)
-    i.Ultrasonic_LastReadValid               0x08000ef4   Section        0  ultrasonic.o(i.Ultrasonic_LastReadValid)
-    i.Ultrasonic_ReadFrontCm                 0x08000f00   Section        0  ultrasonic.o(i.Ultrasonic_ReadFrontCm)
-    i.Ultrasonic_ReadRawCm                   0x08000f40   Section        0  ultrasonic.o(i.Ultrasonic_ReadRawCm)
-    Ultrasonic_ReadRawCm                     0x08000f41   Thumb Code   162  ultrasonic.o(i.Ultrasonic_ReadRawCm)
-    i.Ultrasonic_WaitEchoLevel               0x08000ff4   Section        0  ultrasonic.o(i.Ultrasonic_WaitEchoLevel)
-    Ultrasonic_WaitEchoLevel                 0x08000ff5   Thumb Code    46  ultrasonic.o(i.Ultrasonic_WaitEchoLevel)
-    i.Ultrasonic_WaitForTriggerInterval      0x08001028   Section        0  ultrasonic.o(i.Ultrasonic_WaitForTriggerInterval)
-    Ultrasonic_WaitForTriggerInterval        0x08001029   Thumb Code    32  ultrasonic.o(i.Ultrasonic_WaitForTriggerInterval)
-    i.main                                   0x08001050   Section        0  main.o(i.main)
+    i.Maze_UARTStatusTask                    0x080008b8   Section        0  maze.o(i.Maze_UARTStatusTask)
+    Maze_UARTStatusTask                      0x080008b9   Thumb Code    36  maze.o(i.Maze_UARTStatusTask)
+    i.Motor_ApplyTrim                        0x080008e0   Section        0  motor.o(i.Motor_ApplyTrim)
+    Motor_ApplyTrim                          0x080008e1   Thumb Code    28  motor.o(i.Motor_ApplyTrim)
+    i.Motor_Forward                          0x080008fc   Section        0  motor.o(i.Motor_Forward)
+    i.Motor_GetLeftPwm                       0x08000910   Section        0  motor.o(i.Motor_GetLeftPwm)
+    i.Motor_GetRightPwm                      0x0800091c   Section        0  motor.o(i.Motor_GetRightPwm)
+    i.Motor_Init                             0x08000928   Section        0  motor.o(i.Motor_Init)
+    i.Motor_LeftTurn                         0x080009f0   Section        0  motor.o(i.Motor_LeftTurn)
+    i.Motor_LimitPwm                         0x08000a04   Section        0  motor.o(i.Motor_LimitPwm)
+    Motor_LimitPwm                           0x08000a05   Thumb Code    18  motor.o(i.Motor_LimitPwm)
+    i.Motor_RightTurn                        0x08000a16   Section        0  motor.o(i.Motor_RightTurn)
+    i.Motor_SetLeft                          0x08000a2c   Section        0  motor.o(i.Motor_SetLeft)
+    i.Motor_SetLeftDir                       0x08000a80   Section        0  motor.o(i.Motor_SetLeftDir)
+    Motor_SetLeftDir                         0x08000a81   Thumb Code    66  motor.o(i.Motor_SetLeftDir)
+    i.Motor_SetLeftPwm                       0x08000ac8   Section        0  motor.o(i.Motor_SetLeftPwm)
+    Motor_SetLeftPwm                         0x08000ac9   Thumb Code    24  motor.o(i.Motor_SetLeftPwm)
+    i.Motor_SetRight                         0x08000ae0   Section        0  motor.o(i.Motor_SetRight)
+    i.Motor_SetRightDir                      0x08000b34   Section        0  motor.o(i.Motor_SetRightDir)
+    Motor_SetRightDir                        0x08000b35   Thumb Code    66  motor.o(i.Motor_SetRightDir)
+    i.Motor_SetRightPwm                      0x08000b7c   Section        0  motor.o(i.Motor_SetRightPwm)
+    Motor_SetRightPwm                        0x08000b7d   Thumb Code    24  motor.o(i.Motor_SetRightPwm)
+    i.Motor_SpinLeft                         0x08000b94   Section        0  motor.o(i.Motor_SpinLeft)
+    i.Motor_Stop                             0x08000ba8   Section        0  motor.o(i.Motor_Stop)
+    i.SystemInit                             0x08000bb8   Section        0  system_stm32f103.o(i.SystemInit)
+    i.UART1_Init                             0x08000c08   Section        0  uart.o(i.UART1_Init)
+    i.UART1_SendChar                         0x08000c78   Section        0  uart.o(i.UART1_SendChar)
+    i.UART1_SendRobotStatus                  0x08000c94   Section        0  uart.o(i.UART1_SendRobotStatus)
+    i.UART1_SendSignedPwm                    0x08000d64   Section        0  uart.o(i.UART1_SendSignedPwm)
+    UART1_SendSignedPwm                      0x08000d65   Thumb Code    50  uart.o(i.UART1_SendSignedPwm)
+    i.UART1_SendString                       0x08000d96   Section        0  uart.o(i.UART1_SendString)
+    i.UART1_SendUint                         0x08000dae   Section        0  uart.o(i.UART1_SendUint)
+    UART1_SendUint                           0x08000daf   Thumb Code    78  uart.o(i.UART1_SendUint)
+    i.UART1_SendUltrasonicError              0x08000dfc   Section        0  uart.o(i.UART1_SendUltrasonicError)
+    UART1_SendUltrasonicError                0x08000dfd   Thumb Code    78  uart.o(i.UART1_SendUltrasonicError)
+    i.Ultrasonic_Init                        0x08000e98   Section        0  ultrasonic.o(i.Ultrasonic_Init)
+    i.Ultrasonic_LastError                   0x08000ef0   Section        0  ultrasonic.o(i.Ultrasonic_LastError)
+    i.Ultrasonic_LastReadValid               0x08000efc   Section        0  ultrasonic.o(i.Ultrasonic_LastReadValid)
+    i.Ultrasonic_ReadFrontCm                 0x08000f08   Section        0  ultrasonic.o(i.Ultrasonic_ReadFrontCm)
+    i.Ultrasonic_ReadRawCm                   0x08000f48   Section        0  ultrasonic.o(i.Ultrasonic_ReadRawCm)
+    Ultrasonic_ReadRawCm                     0x08000f49   Thumb Code   162  ultrasonic.o(i.Ultrasonic_ReadRawCm)
+    i.Ultrasonic_WaitEchoLevel               0x08000ffc   Section        0  ultrasonic.o(i.Ultrasonic_WaitEchoLevel)
+    Ultrasonic_WaitEchoLevel                 0x08000ffd   Thumb Code    46  ultrasonic.o(i.Ultrasonic_WaitEchoLevel)
+    i.Ultrasonic_WaitForTriggerInterval      0x08001030   Section        0  ultrasonic.o(i.Ultrasonic_WaitForTriggerInterval)
+    Ultrasonic_WaitForTriggerInterval        0x08001031   Thumb Code    32  ultrasonic.o(i.Ultrasonic_WaitForTriggerInterval)
+    i.main                                   0x08001058   Section        0  main.o(i.main)
     .data                                    0x20000000   Section       15  maze.o(.data)
     g_uart_status_elapsed_ms                 0x20000000   Data           2  maze.o(.data)
     g_last_sensor_state                      0x20000002   Data           6  maze.o(.data)
@@ -513,7 +513,7 @@ Image Symbol Table
     g_state_elapsed_ms                       0x2000000a   Data           2  maze.o(.data)
     g_finish_confirm_count                   0x2000000c   Data           1  maze.o(.data)
     g_turn_lost_forward_done                 0x2000000d   Data           1  maze.o(.data)
-    g_skip_next_left_turn                    0x2000000e   Data           1  maze.o(.data)
+    g_left_turn_inhibit                      0x2000000e   Data           1  maze.o(.data)
     .data                                    0x20000010   Section        4  motor.o(.data)
     g_left_pwm                               0x20000010   Data           2  motor.o(.data)
     g_right_pwm                              0x20000012   Data           2  motor.o(.data)
@@ -695,29 +695,29 @@ Image Symbol Table
     Maze_Init                                0x08000545   Thumb Code    38  maze.o(i.Maze_Init)
     Maze_ReadSensorState                     0x080005dd   Thumb Code    80  maze.o(i.Maze_ReadSensorState)
     Maze_SendStatusNow                       0x080007c5   Thumb Code    34  maze.o(i.Maze_SendStatusNow)
-    Maze_Task                                0x08000821   Thumb Code   134  maze.o(i.Maze_Task)
-    Motor_Forward                            0x080008f5   Thumb Code    18  motor.o(i.Motor_Forward)
-    Motor_GetLeftPwm                         0x08000909   Thumb Code     8  motor.o(i.Motor_GetLeftPwm)
-    Motor_GetRightPwm                        0x08000915   Thumb Code     8  motor.o(i.Motor_GetRightPwm)
-    Motor_Init                               0x08000921   Thumb Code   178  motor.o(i.Motor_Init)
-    Motor_LeftTurn                           0x080009e9   Thumb Code    20  motor.o(i.Motor_LeftTurn)
-    Motor_RightTurn                          0x08000a0f   Thumb Code    20  motor.o(i.Motor_RightTurn)
-    Motor_SetLeft                            0x08000a25   Thumb Code    78  motor.o(i.Motor_SetLeft)
-    Motor_SetRight                           0x08000ad9   Thumb Code    78  motor.o(i.Motor_SetRight)
-    Motor_SpinLeft                           0x08000b8d   Thumb Code    20  motor.o(i.Motor_SpinLeft)
-    Motor_Stop                               0x08000ba1   Thumb Code    16  motor.o(i.Motor_Stop)
-    SystemInit                               0x08000bb1   Thumb Code    72  system_stm32f103.o(i.SystemInit)
-    UART1_Init                               0x08000c01   Thumb Code    96  uart.o(i.UART1_Init)
-    UART1_SendChar                           0x08000c71   Thumb Code    22  uart.o(i.UART1_SendChar)
-    UART1_SendRobotStatus                    0x08000c8d   Thumb Code   122  uart.o(i.UART1_SendRobotStatus)
-    UART1_SendString                         0x08000d8f   Thumb Code    24  uart.o(i.UART1_SendString)
-    Ultrasonic_Init                          0x08000e91   Thumb Code    66  ultrasonic.o(i.Ultrasonic_Init)
-    Ultrasonic_LastError                     0x08000ee9   Thumb Code     6  ultrasonic.o(i.Ultrasonic_LastError)
-    Ultrasonic_LastReadValid                 0x08000ef5   Thumb Code     6  ultrasonic.o(i.Ultrasonic_LastReadValid)
-    Ultrasonic_ReadFrontCm                   0x08000f01   Thumb Code    56  ultrasonic.o(i.Ultrasonic_ReadFrontCm)
-    main                                     0x08001051   Thumb Code    50  main.o(i.main)
-    Region$$Table$$Base                      0x080010c4   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x080010e4   Number         0  anon$$obj.o(Region$$Table)
+    Maze_Task                                0x08000821   Thumb Code   142  maze.o(i.Maze_Task)
+    Motor_Forward                            0x080008fd   Thumb Code    18  motor.o(i.Motor_Forward)
+    Motor_GetLeftPwm                         0x08000911   Thumb Code     8  motor.o(i.Motor_GetLeftPwm)
+    Motor_GetRightPwm                        0x0800091d   Thumb Code     8  motor.o(i.Motor_GetRightPwm)
+    Motor_Init                               0x08000929   Thumb Code   178  motor.o(i.Motor_Init)
+    Motor_LeftTurn                           0x080009f1   Thumb Code    20  motor.o(i.Motor_LeftTurn)
+    Motor_RightTurn                          0x08000a17   Thumb Code    20  motor.o(i.Motor_RightTurn)
+    Motor_SetLeft                            0x08000a2d   Thumb Code    78  motor.o(i.Motor_SetLeft)
+    Motor_SetRight                           0x08000ae1   Thumb Code    78  motor.o(i.Motor_SetRight)
+    Motor_SpinLeft                           0x08000b95   Thumb Code    20  motor.o(i.Motor_SpinLeft)
+    Motor_Stop                               0x08000ba9   Thumb Code    16  motor.o(i.Motor_Stop)
+    SystemInit                               0x08000bb9   Thumb Code    72  system_stm32f103.o(i.SystemInit)
+    UART1_Init                               0x08000c09   Thumb Code    96  uart.o(i.UART1_Init)
+    UART1_SendChar                           0x08000c79   Thumb Code    22  uart.o(i.UART1_SendChar)
+    UART1_SendRobotStatus                    0x08000c95   Thumb Code   122  uart.o(i.UART1_SendRobotStatus)
+    UART1_SendString                         0x08000d97   Thumb Code    24  uart.o(i.UART1_SendString)
+    Ultrasonic_Init                          0x08000e99   Thumb Code    66  ultrasonic.o(i.Ultrasonic_Init)
+    Ultrasonic_LastError                     0x08000ef1   Thumb Code     6  ultrasonic.o(i.Ultrasonic_LastError)
+    Ultrasonic_LastReadValid                 0x08000efd   Thumb Code     6  ultrasonic.o(i.Ultrasonic_LastReadValid)
+    Ultrasonic_ReadFrontCm                   0x08000f09   Thumb Code    56  ultrasonic.o(i.Ultrasonic_ReadFrontCm)
+    main                                     0x08001059   Thumb Code    50  main.o(i.main)
+    Region$$Table$$Base                      0x080010cc   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x080010ec   Number         0  anon$$obj.o(Region$$Table)
     SystemCoreClock                          0x2000001c   Data           4  system_stm32f103.o(.data)
     __libspace_start                         0x20000020   Data          96  libspace.o(.bss)
     __temporary_stack_top$libspace           0x20000080   Data           0  libspace.o(.bss)
@@ -730,9 +730,9 @@ Memory Map of the image
 
   Image Entry point : 0x08000189
 
-  Load Region LR_1 (Base: 0x08000000, Size: 0x00001104, Max: 0xffffffff, ABSOLUTE)
+  Load Region LR_1 (Base: 0x08000000, Size: 0x0000110c, Max: 0xffffffff, ABSOLUTE)
 
-    Execution Region ER_RO (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x000010e4, Max: 0xffffffff, ABSOLUTE)
+    Execution Region ER_RO (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x000010ec, Max: 0xffffffff, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -828,58 +828,58 @@ Memory Map of the image
     0x080007c4   0x080007c4   0x00000028   Code   RO           62    i.Maze_SendStatusNow  maze.o
     0x080007ec   0x080007ec   0x00000024   Code   RO           63    i.Maze_SetState     maze.o
     0x08000810   0x08000810   0x00000010   Code   RO           64    i.Maze_StopFor      maze.o
-    0x08000820   0x08000820   0x00000090   Code   RO           65    i.Maze_Task         maze.o
-    0x080008b0   0x080008b0   0x00000028   Code   RO           66    i.Maze_UARTStatusTask  maze.o
-    0x080008d8   0x080008d8   0x0000001c   Code   RO          232    i.Motor_ApplyTrim   motor.o
-    0x080008f4   0x080008f4   0x00000012   Code   RO          234    i.Motor_Forward     motor.o
-    0x08000906   0x08000906   0x00000002   PAD
-    0x08000908   0x08000908   0x0000000c   Code   RO          235    i.Motor_GetLeftPwm  motor.o
-    0x08000914   0x08000914   0x0000000c   Code   RO          236    i.Motor_GetRightPwm  motor.o
-    0x08000920   0x08000920   0x000000c8   Code   RO          237    i.Motor_Init        motor.o
-    0x080009e8   0x080009e8   0x00000014   Code   RO          238    i.Motor_LeftTurn    motor.o
-    0x080009fc   0x080009fc   0x00000012   Code   RO          239    i.Motor_LimitPwm    motor.o
-    0x08000a0e   0x08000a0e   0x00000014   Code   RO          240    i.Motor_RightTurn   motor.o
-    0x08000a22   0x08000a22   0x00000002   PAD
-    0x08000a24   0x08000a24   0x00000054   Code   RO          241    i.Motor_SetLeft     motor.o
-    0x08000a78   0x08000a78   0x00000048   Code   RO          242    i.Motor_SetLeftDir  motor.o
-    0x08000ac0   0x08000ac0   0x00000018   Code   RO          243    i.Motor_SetLeftPwm  motor.o
-    0x08000ad8   0x08000ad8   0x00000054   Code   RO          244    i.Motor_SetRight    motor.o
-    0x08000b2c   0x08000b2c   0x00000048   Code   RO          245    i.Motor_SetRightDir  motor.o
-    0x08000b74   0x08000b74   0x00000018   Code   RO          246    i.Motor_SetRightPwm  motor.o
-    0x08000b8c   0x08000b8c   0x00000014   Code   RO          247    i.Motor_SpinLeft    motor.o
-    0x08000ba0   0x08000ba0   0x00000010   Code   RO          249    i.Motor_Stop        motor.o
-    0x08000bb0   0x08000bb0   0x00000050   Code   RO          476    i.SystemInit        system_stm32f103.o
-    0x08000c00   0x08000c00   0x00000070   Code   RO          424    i.UART1_Init        uart.o
-    0x08000c70   0x08000c70   0x0000001c   Code   RO          425    i.UART1_SendChar    uart.o
-    0x08000c8c   0x08000c8c   0x000000d0   Code   RO          427    i.UART1_SendRobotStatus  uart.o
-    0x08000d5c   0x08000d5c   0x00000032   Code   RO          428    i.UART1_SendSignedPwm  uart.o
-    0x08000d8e   0x08000d8e   0x00000018   Code   RO          429    i.UART1_SendString  uart.o
-    0x08000da6   0x08000da6   0x0000004e   Code   RO          430    i.UART1_SendUint    uart.o
-    0x08000df4   0x08000df4   0x0000009c   Code   RO          431    i.UART1_SendUltrasonicError  uart.o
-    0x08000e90   0x08000e90   0x00000058   Code   RO          342    i.Ultrasonic_Init   ultrasonic.o
-    0x08000ee8   0x08000ee8   0x0000000c   Code   RO          344    i.Ultrasonic_LastError  ultrasonic.o
-    0x08000ef4   0x08000ef4   0x0000000c   Code   RO          345    i.Ultrasonic_LastReadValid  ultrasonic.o
-    0x08000f00   0x08000f00   0x00000040   Code   RO          346    i.Ultrasonic_ReadFrontCm  ultrasonic.o
-    0x08000f40   0x08000f40   0x000000b4   Code   RO          347    i.Ultrasonic_ReadRawCm  ultrasonic.o
-    0x08000ff4   0x08000ff4   0x00000034   Code   RO          348    i.Ultrasonic_WaitEchoLevel  ultrasonic.o
-    0x08001028   0x08001028   0x00000028   Code   RO          349    i.Ultrasonic_WaitForTriggerInterval  ultrasonic.o
-    0x08001050   0x08001050   0x00000074   Code   RO            1    i.main              main.o
-    0x080010c4   0x080010c4   0x00000020   Data   RO          666    Region$$Table       anon$$obj.o
+    0x08000820   0x08000820   0x00000098   Code   RO           65    i.Maze_Task         maze.o
+    0x080008b8   0x080008b8   0x00000028   Code   RO           66    i.Maze_UARTStatusTask  maze.o
+    0x080008e0   0x080008e0   0x0000001c   Code   RO          232    i.Motor_ApplyTrim   motor.o
+    0x080008fc   0x080008fc   0x00000012   Code   RO          234    i.Motor_Forward     motor.o
+    0x0800090e   0x0800090e   0x00000002   PAD
+    0x08000910   0x08000910   0x0000000c   Code   RO          235    i.Motor_GetLeftPwm  motor.o
+    0x0800091c   0x0800091c   0x0000000c   Code   RO          236    i.Motor_GetRightPwm  motor.o
+    0x08000928   0x08000928   0x000000c8   Code   RO          237    i.Motor_Init        motor.o
+    0x080009f0   0x080009f0   0x00000014   Code   RO          238    i.Motor_LeftTurn    motor.o
+    0x08000a04   0x08000a04   0x00000012   Code   RO          239    i.Motor_LimitPwm    motor.o
+    0x08000a16   0x08000a16   0x00000014   Code   RO          240    i.Motor_RightTurn   motor.o
+    0x08000a2a   0x08000a2a   0x00000002   PAD
+    0x08000a2c   0x08000a2c   0x00000054   Code   RO          241    i.Motor_SetLeft     motor.o
+    0x08000a80   0x08000a80   0x00000048   Code   RO          242    i.Motor_SetLeftDir  motor.o
+    0x08000ac8   0x08000ac8   0x00000018   Code   RO          243    i.Motor_SetLeftPwm  motor.o
+    0x08000ae0   0x08000ae0   0x00000054   Code   RO          244    i.Motor_SetRight    motor.o
+    0x08000b34   0x08000b34   0x00000048   Code   RO          245    i.Motor_SetRightDir  motor.o
+    0x08000b7c   0x08000b7c   0x00000018   Code   RO          246    i.Motor_SetRightPwm  motor.o
+    0x08000b94   0x08000b94   0x00000014   Code   RO          247    i.Motor_SpinLeft    motor.o
+    0x08000ba8   0x08000ba8   0x00000010   Code   RO          249    i.Motor_Stop        motor.o
+    0x08000bb8   0x08000bb8   0x00000050   Code   RO          476    i.SystemInit        system_stm32f103.o
+    0x08000c08   0x08000c08   0x00000070   Code   RO          424    i.UART1_Init        uart.o
+    0x08000c78   0x08000c78   0x0000001c   Code   RO          425    i.UART1_SendChar    uart.o
+    0x08000c94   0x08000c94   0x000000d0   Code   RO          427    i.UART1_SendRobotStatus  uart.o
+    0x08000d64   0x08000d64   0x00000032   Code   RO          428    i.UART1_SendSignedPwm  uart.o
+    0x08000d96   0x08000d96   0x00000018   Code   RO          429    i.UART1_SendString  uart.o
+    0x08000dae   0x08000dae   0x0000004e   Code   RO          430    i.UART1_SendUint    uart.o
+    0x08000dfc   0x08000dfc   0x0000009c   Code   RO          431    i.UART1_SendUltrasonicError  uart.o
+    0x08000e98   0x08000e98   0x00000058   Code   RO          342    i.Ultrasonic_Init   ultrasonic.o
+    0x08000ef0   0x08000ef0   0x0000000c   Code   RO          344    i.Ultrasonic_LastError  ultrasonic.o
+    0x08000efc   0x08000efc   0x0000000c   Code   RO          345    i.Ultrasonic_LastReadValid  ultrasonic.o
+    0x08000f08   0x08000f08   0x00000040   Code   RO          346    i.Ultrasonic_ReadFrontCm  ultrasonic.o
+    0x08000f48   0x08000f48   0x000000b4   Code   RO          347    i.Ultrasonic_ReadRawCm  ultrasonic.o
+    0x08000ffc   0x08000ffc   0x00000034   Code   RO          348    i.Ultrasonic_WaitEchoLevel  ultrasonic.o
+    0x08001030   0x08001030   0x00000028   Code   RO          349    i.Ultrasonic_WaitForTriggerInterval  ultrasonic.o
+    0x08001058   0x08001058   0x00000074   Code   RO            1    i.main              main.o
+    0x080010cc   0x080010cc   0x00000020   Data   RO          666    Region$$Table       anon$$obj.o
 
 
-    Execution Region ER_RW (Exec base: 0x20000000, Load base: 0x080010e4, Size: 0x00000020, Max: 0xffffffff, ABSOLUTE)
+    Execution Region ER_RW (Exec base: 0x20000000, Load base: 0x080010ec, Size: 0x00000020, Max: 0xffffffff, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x20000000   0x080010e4   0x0000000f   Data   RW           67    .data               maze.o
-    0x2000000f   0x080010f3   0x00000001   PAD
-    0x20000010   0x080010f4   0x00000004   Data   RW          250    .data               motor.o
-    0x20000014   0x080010f8   0x00000006   Data   RW          350    .data               ultrasonic.o
-    0x2000001a   0x080010fe   0x00000002   PAD
-    0x2000001c   0x08001100   0x00000004   Data   RW          477    .data               system_stm32f103.o
+    0x20000000   0x080010ec   0x0000000f   Data   RW           67    .data               maze.o
+    0x2000000f   0x080010fb   0x00000001   PAD
+    0x20000010   0x080010fc   0x00000004   Data   RW          250    .data               motor.o
+    0x20000014   0x08001100   0x00000006   Data   RW          350    .data               ultrasonic.o
+    0x2000001a   0x08001106   0x00000002   PAD
+    0x2000001c   0x08001108   0x00000004   Data   RW          477    .data               system_stm32f103.o
 
 
-    Execution Region ER_ZI (Exec base: 0x20000020, Load base: 0x08001104, Size: 0x00000660, Max: 0xffffffff, ABSOLUTE)
+    Execution Region ER_ZI (Exec base: 0x20000020, Load base: 0x0800110c, Size: 0x00000660, Max: 0xffffffff, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -899,7 +899,7 @@ Image component sizes
        142         22          0          0          0       1927   delay.o
        154         16          0          0          0       2677   ir_sensor.o
        116         66          0          0          0       8107   main.o
-      1318        114          0         15          0      12128   maze.o
+      1326        114          0         15          0      12132   maze.o
        724         54          0          4          0       8578   motor.o
         40         20        236          0       1536        532   startup_stm32f103c8tx.o
         80          8          0          4          0        735   system_stm32f103.o
@@ -907,7 +907,7 @@ Image component sizes
        448         74          0          6          0       4161   ultrasonic.o
 
     ----------------------------------------------------------------------
-      3776        566        268         32       1536      45372   Object Totals
+      3784        566        268         32       1536      45376   Object Totals
          0          0         32          0          0          0   (incl. Generated)
         10          0          0          3          0          0   (incl. Padding)
 
@@ -956,15 +956,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-      4056        582        268         32       1632      42624   Grand Totals
-      4056        582        268         32       1632      42624   ELF Image Totals
-      4056        582        268         32          0          0   ROM Totals
+      4064        582        268         32       1632      42628   Grand Totals
+      4064        582        268         32       1632      42628   ELF Image Totals
+      4064        582        268         32          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                 4324 (   4.22kB)
+    Total RO  Size (Code + RO Data)                 4332 (   4.23kB)
     Total RW  Size (RW Data + ZI Data)              1664 (   1.63kB)
-    Total ROM Size (Code + RO Data + RW Data)       4356 (   4.25kB)
+    Total ROM Size (Code + RO Data + RW Data)       4364 (   4.26kB)
 
 ==============================================================================
 

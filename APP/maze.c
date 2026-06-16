@@ -25,7 +25,7 @@ static uint8_t g_maze_state = MAZE_STATE_FORWARD;
 static uint16_t g_state_elapsed_ms = 0U;
 static uint8_t g_finish_confirm_count = 0U;
 static uint8_t g_turn_lost_forward_done = 0U;
-static uint8_t g_skip_next_left_turn = 0U;
+static uint8_t g_left_turn_inhibit = 0U;
 
 void Maze_SendStatusNow(void)
 {
@@ -77,7 +77,7 @@ void Maze_Init(void)
     g_state_elapsed_ms = 0U;
     g_finish_confirm_count = 0U;
     g_turn_lost_forward_done = 0U;
-    g_skip_next_left_turn = 0U;
+    g_left_turn_inhibit = 0U;
 #if UART_STATUS_ENABLE
     g_uart_status_elapsed_ms = UART_STATUS_INTERVAL_MS;
 #endif
@@ -229,7 +229,7 @@ static void Maze_FinishTurn(void)
 
     if (finished_state == MAZE_STATE_TURN_BACK)
     {
-        g_skip_next_left_turn = 1U;
+        g_left_turn_inhibit = 1U;
     }
 
     Maze_PostTurnForwardIfClear();
@@ -397,12 +397,12 @@ void Maze_Task(void)
         return;
     }
 
-    left_available = s.left_blocked ? 0U : 1U;
-    if (left_available && g_skip_next_left_turn)
+    if (g_left_turn_inhibit && s.left_blocked)
     {
-        left_available = 0U;
-        g_skip_next_left_turn = 0U;
+        g_left_turn_inhibit = 0U;
     }
+
+    left_available = (!s.left_blocked && !g_left_turn_inhibit) ? 1U : 0U;
 
     if (left_available)
     {

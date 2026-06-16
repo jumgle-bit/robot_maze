@@ -3,7 +3,7 @@
 <title>Static Call Graph - [..\Objects\MazeRobot.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image ..\Objects\MazeRobot.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Tue Jun 16 15:16:17 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060528: Last Updated: Tue Jun 16 15:30:54 2026
 <BR><P>
 <H3>Maximum Stack Usage =        200 bytes + Unknown(Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -538,7 +538,7 @@ Global Symbols
 <LI><a href="#[5b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Maze_UARTStatusTask
 </UL>
 
-<P><STRONG><a name="[75]"></a>Maze_Task</STRONG> (Thumb, 134 bytes, Stack size 16 bytes, maze.o(i.Maze_Task))
+<P><STRONG><a name="[75]"></a>Maze_Task</STRONG> (Thumb, 142 bytes, Stack size 16 bytes, maze.o(i.Maze_Task))
 <BR><BR>[Stack]<UL><LI>Max Depth = 200<LI>Call Chain = Maze_Task &rArr; Maze_RunMotionState &rArr; Maze_RunTurnBack &rArr; Maze_FinishTurn &rArr; Maze_PostTurnForwardIfClear &rArr; Maze_GoForwardChecked &rArr; Maze_StopFor &rArr; Maze_DelayWithUart &rArr; Maze_UARTStatusTask &rArr; Maze_SendStatusNow &rArr; UART1_SendRobotStatus &rArr; UART1_SendSignedPwm &rArr; UART1_SendUint
 </UL>
 <BR>[Calls]<UL><LI><a href="#[65]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Maze_ReadSensorState
