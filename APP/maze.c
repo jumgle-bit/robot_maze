@@ -151,6 +151,7 @@ static uint8_t Maze_GoForwardChecked(uint16_t ms, uint16_t pwm, uint16_t safe_cm
         uint16_t step_ms;
         SensorState_t s = Maze_ReadSensorState();
 
+        // 前方障碍物检测，不安全则停止并返回
         if (!Maze_IsFrontSafe(&s, safe_cm))
         {
             Motor_Stop();
@@ -158,11 +159,13 @@ static uint8_t Maze_GoForwardChecked(uint16_t ms, uint16_t pwm, uint16_t safe_cm
             return 0U;
         }
 
+        // 前进一段后停止，分段执行以实现周期性检测
         step_ms = (ms > MAZE_FORWARD_CHECK_STEP_MS) ? MAZE_FORWARD_CHECK_STEP_MS : ms;
         Motor_Forward(pwm);
         Maze_DelayWithUart(step_ms);
         Motor_Stop();
 
+        // 多段前进时插入暂停间隔
         if (ms > step_ms)
         {
             Maze_DelayWithUart(MAZE_FORWARD_CHECK_PAUSE_MS);
@@ -236,6 +239,37 @@ static void Maze_PulsedRightTurn(uint16_t total_ms, uint16_t inner_pwm, uint16_t
     }
 }
 
+static uint8_t Maze_TurnBackUntilFrontClear(void)
+{
+    uint16_t elapsed_ms = 0U;
+
+    while (elapsed_ms < MAZE_TURN_BACK_MAX_MS)
+    {
+        uint16_t step_ms = (uint16_t)(MAZE_TURN_BACK_MAX_MS - elapsed_ms);
+        SensorState_t s;
+
+        if (step_ms > MAZE_TURN_BACK_STEP_MS)
+        {
+            step_ms = MAZE_TURN_BACK_STEP_MS;
+        }
+
+        Motor_SpinLeft(MOTOR_TURN_BACK_SPIN_PWM);
+        Maze_DelayWithUart(step_ms);
+        Motor_Stop();
+
+        elapsed_ms = (uint16_t)(elapsed_ms + step_ms);
+        Maze_DelayWithUart(MAZE_TURN_BACK_CHECK_PAUSE_MS);
+
+        s = Maze_ReadSensorState();
+        if (Maze_IsFrontSafe(&s, FRONT_TURN_BACK_CLEAR_CM))
+        {
+            return 1U;
+        }
+    }
+
+    return 0U;
+}
+
 static void Maze_Right90(const SensorState_t *s)
 {
     Motor_Stop();
@@ -281,9 +315,11 @@ static void Maze_TurnBack(void)
     Motor_Stop();
     Maze_DelayWithUart(MAZE_STOP_BEFORE_TURN_MS);
 
-    /* 原地左旋掉头：左轮反转、右轮正转，死路中更容易完成 180°。 */
-    Motor_SpinLeft(MOTOR_TURN_BACK_SPIN_PWM);
-    Maze_DelayWithUart(MAZE_TURN_BACK_MS);
+    /*
+     * 原地左旋掉头：左轮反转、右轮正转。
+     * 每小段动作后重新测距，前方恢复到 FRONT_TURN_BACK_CLEAR_CM 以上就退出。
+     */
+    (void)Maze_TurnBackUntilFrontClear();
 
     Motor_Stop();
     Maze_DelayWithUart(120U);
