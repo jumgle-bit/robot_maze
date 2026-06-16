@@ -24,6 +24,7 @@ static SensorState_t g_last_sensor_state = {0U, 0U, 0U, 0U};
 static uint8_t g_maze_state = MAZE_STATE_FORWARD;
 static uint16_t g_state_elapsed_ms = 0U;
 static uint8_t g_finish_confirm_count = 0U;
+static uint8_t g_turn_lost_forward_done = 0U;
 
 void Maze_SendStatusNow(void)
 {
@@ -74,6 +75,7 @@ void Maze_Init(void)
     g_maze_state = MAZE_STATE_FORWARD;
     g_state_elapsed_ms = 0U;
     g_finish_confirm_count = 0U;
+    g_turn_lost_forward_done = 0U;
 #if UART_STATUS_ENABLE
     g_uart_status_elapsed_ms = UART_STATUS_INTERVAL_MS;
 #endif
@@ -115,6 +117,7 @@ static void Maze_SetState(uint8_t state)
     g_maze_state = state;
     g_state_elapsed_ms = 0U;
     g_finish_confirm_count = 0U;
+    g_turn_lost_forward_done = 0U;
 }
 
 static uint8_t Maze_ConfirmFinish(uint8_t condition)
@@ -224,6 +227,11 @@ static void Maze_FinishTurn(void)
 
 static uint8_t Maze_ForwardIfBothSideLost(const SensorState_t *s)
 {
+    if (g_turn_lost_forward_done)
+    {
+        return 0U;
+    }
+
     if (!s->left_blocked &&
         !s->right_blocked &&
         Maze_IsFrontSafe(s, FRONT_SAFE_DISTANCE_CM))
@@ -241,6 +249,7 @@ static uint8_t Maze_ForwardIfBothSideLost(const SensorState_t *s)
         Maze_DelayWithUart(step_ms);
         Motor_Stop();
         g_state_elapsed_ms = (uint16_t)(g_state_elapsed_ms + step_ms);
+        g_turn_lost_forward_done = 1U;
         Maze_DelayWithUart(MAZE_TURN_STEP_PAUSE_MS);
         return 1U;
     }

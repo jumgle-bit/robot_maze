@@ -73,7 +73,7 @@ USER/config.h
 #define MAZE_POST_TURN_FORWARD_MS 220
 #define MAZE_TURN_STEP_MS         45
 #define MAZE_TURN_STEP_PAUSE_MS   20
-#define MAZE_TURN_LOST_FORWARD_MS 80
+#define MAZE_TURN_LOST_FORWARD_MS 200
 #define MAZE_TURN_MIN_MS          260
 #define MAZE_TURN_MAX_MS          1200
 #define MAZE_TURN_BACK_MIN_MS     260
@@ -82,7 +82,7 @@ USER/config.h
 #define MAZE_TURN_BACK_MAX_MS     1800
 ```
 
-90°转弯采用状态机分段差速转弯，由 `MOTOR_TURN_INNER_PWM`、`MOTOR_TURN_OUTER_PWM`、`MAZE_TURN_STEP_MS`、`MAZE_TURN_STEP_PAUSE_MS`、`MAZE_TURN_MIN_MS` 和 `MAZE_TURN_MAX_MS` 调整。达到最小转弯时间后，对应侧红外连续 `MAZE_IR_CONFIRM_COUNT` 次检测到墙就退出；如果一直没有确认，则达到 `MAZE_TURN_MAX_MS` 后兜底退出。转弯期间若左右红外都检测不到墙且前方安全，会用 `MOTOR_TURN_LOST_PWM` 前进 `MAZE_TURN_LOST_FORWARD_MS` 做补位，然后继续原转弯状态。死路掉头使用一侧正转、一侧反转的分段原地左旋，由 `MOTOR_TURN_BACK_SPIN_PWM`、`MAZE_TURN_BACK_STEP_MS` 和 `MAZE_TURN_BACK_CHECK_PAUSE_MS` 调整动作细腻程度；达到 `MAZE_TURN_BACK_MIN_MS` 后，当前方超声波距离连续大于 `FRONT_TURN_BACK_CLEAR_CM` 时提前退出，`MAZE_TURN_BACK_MAX_MS` 作为超声波异常或距离未恢复时的最大兜底时间。
+90°转弯采用状态机分段差速转弯，由 `MOTOR_TURN_INNER_PWM`、`MOTOR_TURN_OUTER_PWM`、`MAZE_TURN_STEP_MS`、`MAZE_TURN_STEP_PAUSE_MS`、`MAZE_TURN_MIN_MS` 和 `MAZE_TURN_MAX_MS` 调整。达到最小转弯时间后，对应侧红外连续 `MAZE_IR_CONFIRM_COUNT` 次检测到墙就退出；如果一直没有确认，则达到 `MAZE_TURN_MAX_MS` 后兜底退出。转弯期间若左右红外都检测不到墙且前方安全，每次转弯状态最多会用 `MOTOR_TURN_LOST_PWM` 前进 `MAZE_TURN_LOST_FORWARD_MS` 做一次补位，然后继续原转弯状态。死路掉头使用一侧正转、一侧反转的分段原地左旋，由 `MOTOR_TURN_BACK_SPIN_PWM`、`MAZE_TURN_BACK_STEP_MS` 和 `MAZE_TURN_BACK_CHECK_PAUSE_MS` 调整动作细腻程度；达到 `MAZE_TURN_BACK_MIN_MS` 后，当前方超声波距离连续大于 `FRONT_TURN_BACK_CLEAR_CM` 时提前退出，`MAZE_TURN_BACK_MAX_MS` 作为超声波异常或距离未恢复时的最大兜底时间。
 
 检测到需要转弯后，小车只会先停止 `MAZE_STOP_BEFORE_TURN_MS`，让车身稳定后直接进入转弯状态，不再执行转弯前前进动作。
 
