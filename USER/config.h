@@ -32,13 +32,13 @@
 #define MOTOR_PWM_MAX             1000  /* PWM 最大值，对应 TIM2 ARR+1 */
 
 /* 正式迷宫运行用 PWM */
-#define MOTOR_FORWARD_PWM         650    /* 正常直行 PWM */
-#define MOTOR_SLOW_PWM            620    /* 前方较近时减速 PWM */
+#define MOTOR_FORWARD_PWM         600    /* 正常直行 PWM */
+#define MOTOR_SLOW_PWM            580    /* 前方较近时减速 PWM */
 #define MOTOR_TURN_LOST_PWM       560    /* 转弯中两侧都丢墙时，补位前进 PWM */
 
 /* 差速 90°转弯 PWM：内侧轮慢，外侧轮快，避免原地甩头 */
-#define MOTOR_TURN_INNER_PWM      550   /* 90°差速转弯时，内侧轮 PWM */
-#define MOTOR_TURN_OUTER_PWM      980   /* 90°差速转弯时，外侧轮 PWM */
+#define MOTOR_TURN_INNER_PWM      560   /* 90°差速转弯时，内侧轮 PWM */
+#define MOTOR_TURN_OUTER_PWM      930   /* 90°差速转弯时，外侧轮 PWM */
 
 /* 原地掉头 PWM：一侧正转、一侧反转 */
 #define MOTOR_TURN_BACK_SPIN_PWM  650   /* 原地掉头时，两侧轮正反转 PWM */
@@ -69,6 +69,7 @@
  */
 #define FRONT_SAFE_DISTANCE_CM   10      /* 前方距离大于该值，认为可以继续前进 */
 #define FRONT_SLOW_DISTANCE_CM   15      /* 前方距离较近但仍安全时，降低前进速度 */
+#define FRONT_RIGHT_TURN_DISTANCE_CM 25  /* 右侧可通且前方距离不大于该值时，提前进入右转 */
 #define FRONT_TURN_BACK_CLEAR_CM 15      /* 掉头时前方距离大于该值，认为已转到安全方向 */
 #define MAZE_IR_CONFIRM_COUNT    2       /* 红外连续确认次数 */
 #define ULTRASONIC_MAX_CM        300     /* 超声波有效距离上限，超过认为无效 */
@@ -93,7 +94,7 @@
 #define MAZE_POST_TURN_FORWARD_MS 220     /* 转弯完成后，若前方安全则短距离前进时间 */
 #define MAZE_TURN_STEP_MS         45      /* 左/右转状态每次差速转弯的小段时间 */
 #define MAZE_TURN_STEP_PAUSE_MS   20      /* 左/右转每小段之间的停车暂停时间 */
-#define MAZE_TURN_LOST_FORWARD_MS 200      /* 转弯中两侧都检测不到墙时，前进补位时间 */
+#define MAZE_TURN_LOST_FORWARD_MS 90      /* 转弯中两侧都检测不到墙时，前进补位时间 */
 #define MAZE_TURN_MIN_MS          260     /* 左/右转最小执行时间，未达到前不允许退出 */
 #define MAZE_TURN_MAX_MS          1200    /* 左/右转最大执行时间，超时后兜底退出 */
 #define MAZE_TURN_BACK_MIN_MS     260     /* 掉头最小执行时间，未达到前不允许退出 */

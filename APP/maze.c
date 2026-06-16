@@ -25,6 +25,7 @@ static uint8_t g_maze_state = MAZE_STATE_FORWARD;
 static uint16_t g_state_elapsed_ms = 0U;
 static uint8_t g_finish_confirm_count = 0U;
 static uint8_t g_turn_lost_forward_done = 0U;
+static uint8_t g_skip_next_left_turn = 0U;
 
 void Maze_SendStatusNow(void)
 {
@@ -76,6 +77,7 @@ void Maze_Init(void)
     g_state_elapsed_ms = 0U;
     g_finish_confirm_count = 0U;
     g_turn_lost_forward_done = 0U;
+    g_skip_next_left_turn = 0U;
 #if UART_STATUS_ENABLE
     g_uart_status_elapsed_ms = UART_STATUS_INTERVAL_MS;
 #endif
@@ -220,8 +222,16 @@ static void Maze_BeginTurn(uint8_t state, const SensorState_t *s)
 
 static void Maze_FinishTurn(void)
 {
+    uint8_t finished_state = g_maze_state;
+
     Maze_StopFor(MAZE_TURN_STEP_PAUSE_MS);
     Maze_SetState(MAZE_STATE_FORWARD);
+
+    if (finished_state == MAZE_STATE_TURN_BACK)
+    {
+        g_skip_next_left_turn = 1U;
+    }
+
     Maze_PostTurnForwardIfClear();
 }
 
@@ -373,6 +383,7 @@ static void Maze_RunMotionState(const SensorState_t *s)
 void Maze_Task(void)
 {
     SensorState_t s = Maze_ReadSensorState();
+    uint8_t left_available;
 
     if (g_maze_state != MAZE_STATE_FORWARD)
     {
@@ -386,17 +397,25 @@ void Maze_Task(void)
         return;
     }
 
-    if (!s.left_blocked)
+    left_available = s.left_blocked ? 0U : 1U;
+    if (left_available && g_skip_next_left_turn)
+    {
+        left_available = 0U;
+        g_skip_next_left_turn = 0U;
+    }
+
+    if (left_available)
     {
         Maze_BeginTurn(MAZE_STATE_TURN_LEFT, &s);
+    }
+    else if (!s.right_blocked &&
+             (!Maze_IsFrontSafe(&s, FRONT_RIGHT_TURN_DISTANCE_CM)))
+    {
+        Maze_BeginTurn(MAZE_STATE_TURN_RIGHT, &s);
     }
     else if (Maze_IsFrontSafe(&s, FRONT_SAFE_DISTANCE_CM))
     {
         Maze_ForwardOneLoop(&s);
-    }
-    else if (!s.right_blocked)
-    {
-        Maze_BeginTurn(MAZE_STATE_TURN_RIGHT, &s);
     }
     else
     {
