@@ -1,5 +1,6 @@
 #include "uart.h"
 #include "config.h"
+#include "ultrasonic.h"
 #include "system_stm32f103.h"
 #include "bsp_gpio.h"
 
@@ -9,6 +10,7 @@
  */
 
 #if UART_STATUS_ENABLE
+// 以十进制文本形式发送一个无符号整数。
 static void UART1_SendUint(uint16_t value)
 {
     char buf[6];
@@ -32,6 +34,7 @@ static void UART1_SendUint(uint16_t value)
     }
 }
 
+// 发送带正负号的 PWM 值，便于串口观察电机方向和速度。
 static void UART1_SendSignedPwm(int16_t value)
 {
     if (value > 0)
@@ -49,8 +52,37 @@ static void UART1_SendSignedPwm(int16_t value)
         UART1_SendChar('0');
     }
 }
+
+// 把超声波最近一次错误码转换成可读字符串输出。
+static void UART1_SendUltrasonicError(void)
+{
+    UART1_SendString(",US_ERR=");
+
+    switch (Ultrasonic_LastError())
+    {
+    case 0U:
+        UART1_SendString("NONE");
+        break;
+    case 1U:
+        UART1_SendString("IDLE_HIGH");
+        break;
+    case 2U:
+        UART1_SendString("WAIT_RISE");
+        break;
+    case 3U:
+        UART1_SendString("ECHO_STUCK_HIGH");
+        break;
+    case 4U:
+        UART1_SendString("RANGE");
+        break;
+    default:
+        UART1_SendString("UNKNOWN");
+        break;
+    }
+}
 #endif
 
+// 初始化 USART1，使用 PA9 发送、PA10 接收。
 void UART1_Init(uint32_t baudrate)
 {
     uint32_t brr;
@@ -77,6 +109,7 @@ void UART1_Init(uint32_t baudrate)
     USART1->CR1 |= USART_CR1_UE;
 }
 
+// 阻塞发送 1 个字符，等待发送寄存器空后写入数据。
 void UART1_SendChar(char ch)
 {
     while ((USART1->SR & USART_SR_TXE) == 0U)
@@ -87,6 +120,7 @@ void UART1_SendChar(char ch)
     USART1->DR = (uint16_t)ch;
 }
 
+// 发送以 '\0' 结尾的字符串。
 void UART1_SendString(const char *str)
 {
     while ((str != 0) && (*str != '\0'))
@@ -95,6 +129,7 @@ void UART1_SendString(const char *str)
     }
 }
 
+// 单独输出一次超声波距离，保留给调试测距时使用。
 void UART1_SendDistanceCm(uint16_t cm)
 {
 #if UART_STATUS_ENABLE
@@ -106,14 +141,13 @@ void UART1_SendDistanceCm(uint16_t cm)
 #endif
 }
 
+// 输出完整状态行：超声波、红外状态、左右电机带符号 PWM。
 void UART1_SendRobotStatus(uint16_t cm,
                            uint8_t ultrasonic_valid,
-                           const char *ultrasonic_error,
                            uint8_t left_blocked,
                            uint8_t right_blocked,
                            int16_t left_pwm,
-                           int16_t right_pwm,
-                           const char *action)
+                           int16_t right_pwm)
 {
 #if UART_STATUS_ENABLE
     UART1_SendString("US=");
@@ -127,8 +161,8 @@ void UART1_SendRobotStatus(uint16_t cm,
         UART1_SendString("INVALID,US_OK=0");
     }
 
-    UART1_SendString(",US_ERR=");
-    UART1_SendString(ultrasonic_error);
+    UART1_SendUltrasonicError();
+
     UART1_SendString(",IR_L=");
     UART1_SendString(left_blocked ? "BLOCK" : "CLEAR");
     UART1_SendString(",IR_R=");
@@ -138,17 +172,13 @@ void UART1_SendRobotStatus(uint16_t cm,
     UART1_SendSignedPwm(left_pwm);
     UART1_SendString(",PWM_R=");
     UART1_SendSignedPwm(right_pwm);
-    UART1_SendString(",ACT=");
-    UART1_SendString(action);
     UART1_SendString("\r\n");
 #else
     (void)cm;
     (void)ultrasonic_valid;
-    (void)ultrasonic_error;
     (void)left_blocked;
     (void)right_blocked;
     (void)left_pwm;
     (void)right_pwm;
-    (void)action;
 #endif
 }

@@ -15,6 +15,7 @@
 #define IR_RIGHT_PORT    GPIOA
 #define IR_RIGHT_PIN     11
 
+// 初始化左右红外输入引脚，并开启上拉输入状态。
 void IR_Init(void)
 {
     RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;
@@ -26,6 +27,7 @@ void IR_Init(void)
     GPIO_SetPin(IR_RIGHT_PORT, IR_RIGHT_PIN);   /* 输入上拉 */
 }
 
+// 连续读取 3 次红外电平，至少 2 次触发才认为检测到障碍。
 static uint8_t IR_ReadBlockedDebounced(GPIO_TypeDef *port, uint8_t pin)
 {
     uint8_t i;
@@ -44,11 +46,13 @@ static uint8_t IR_ReadBlockedDebounced(GPIO_TypeDef *port, uint8_t pin)
     return (blocked_count >= 2) ? 1U : 0U;
 }
 
+// 返回左侧红外是否检测到障碍，1 表示有障碍，0 表示通畅。
 uint8_t IR_LeftBlocked(void)
 {
     return IR_ReadBlockedDebounced(IR_LEFT_PORT, IR_LEFT_PIN);
 }
 
+// 返回右侧红外是否检测到障碍，1 表示有障碍，0 表示通畅。
 uint8_t IR_RightBlocked(void)
 {
     return IR_ReadBlockedDebounced(IR_RIGHT_PORT, IR_RIGHT_PIN);

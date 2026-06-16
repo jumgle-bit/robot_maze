@@ -3,24 +3,6 @@
 
 /*
  * ==============================
- *  工程基本配置
- * ==============================
- */
-
-/* 运行模式：
- * APP_MODE_MAZE        ：正式迷宫寻迹
- * APP_MODE_MOTOR_TEST  ：电机单模块测试
- * APP_MODE_SENSOR_TEST ：传感器联动测试
- */
-#define APP_MODE_MAZE          0
-#define APP_MODE_MOTOR_TEST    1
-#define APP_MODE_SENSOR_TEST   2
-#ifndef APP_RUN_MODE
-#define APP_RUN_MODE           APP_MODE_MAZE
-#endif
-
-/*
- * ==============================
  *  红外传感器逻辑配置
  * ==============================
  * 已按要求设置：红外检测到障碍物为低电平。
@@ -43,47 +25,27 @@
  *  PWM 与速度参数：全部在这里改
  * ==============================
  * TIM2 PWM 周期默认为 1000，因此下面 PWM 值范围建议 0~1000。
- * 正式迷宫模式使用传感器闭环原地转向，减少差速前进转弯产生的位置漂移。
- * 电机测试模式仍保留差速转弯接口。
+ * 本版转弯采用“差速转弯”：左右轮均向前转，只是内侧轮慢、外侧轮快，
+ * 不再使用左轮反转/右轮正转那种正反转原地转弯方式。
+ * 本次已把差速驱动 PWM 整体调低，若实车动力不足可只调大下面几个宏。
  */
 #define MOTOR_PWM_MAX             1000
 
 /* 正式迷宫运行用 PWM */
-#define MOTOR_FORWARD_PWM         600    /* 正常直行 PWM，已调低 */
-#define MOTOR_SLOW_PWM            420    /* 前方较近时减速 PWM，已调低 */
+#define MOTOR_FORWARD_PWM         650    /* 正常直行 PWM */
+#define MOTOR_SLOW_PWM            620    /* 前方较近时减速 PWM */
+#define MOTOR_TURN_DELAY_PWM      620    /* 检测到转弯后，延时前进用低速 PWM */
 
-/* 差速 90°转弯 PWM：内侧轮慢，外侧轮快 */
-#define MOTOR_TURN_INNER_PWM      300
-#define MOTOR_TURN_OUTER_PWM      600
+/* 差速 90°转弯 PWM：内侧轮慢，外侧轮快，避免原地甩头 */
+#define MOTOR_TURN_INNER_PWM      530
+#define MOTOR_TURN_OUTER_PWM      980
 
-/* 差速掉头 PWM：仍然双轮向前差速，不采用正反转 */
-#define MOTOR_TURN_BACK_INNER_PWM 400
-#define MOTOR_TURN_BACK_OUTER_PWM 700
-
-/* 闭环转向：传感器决定何时完成旋转，最大采样数只作为安全保护。 */
-#define MOTOR_FEEDBACK_TURN_PWM          360
-#define TURN_CREEP_PULSE_MS              35U
-#define TURN_CREEP_SETTLE_MS             30U
-#define TURN_FEEDBACK_DISTANCE_CHANGE_CM 8U
-#define TURN_FEEDBACK_STABLE_SAMPLES     2U
-#define TURN_FEEDBACK_MAX_SAMPLES        60U
-#define TURN_FEEDBACK_MAX_INVALID_SAMPLES 2U
-
-/* 测试模式用 PWM */
-#define MOTOR_TEST_FORWARD_PWM    450
-#define MOTOR_TEST_TURN_INNER_PWM 180
-#define MOTOR_TEST_TURN_OUTER_PWM 560
+/* 原地掉头 PWM：一侧正转、一侧反转 */
+#define MOTOR_TURN_BACK_SPIN_PWM  650
 
 /* 左右轮 PWM 微调量：正数表示略微增加该侧，负数表示略微减小该侧 */
 #define MOTOR_LEFT_PWM_TRIM       0
 #define MOTOR_RIGHT_PWM_TRIM      0
-
-/* 兼容旧函数名，正常使用时不用改这里 */
-#define MOTOR_BASE_SPEED          MOTOR_FORWARD_PWM
-#define MOTOR_SLOW_SPEED          MOTOR_SLOW_PWM
-#define MOTOR_TURN_SPEED          MOTOR_TURN_OUTER_PWM
-#define MOTOR_TEST_SPEED          MOTOR_TEST_FORWARD_PWM
-
 
 /*
  * ==============================
@@ -101,29 +63,40 @@
  * ==============================
  *  迷宫判断阈值
  * ==============================
- * 本版算法采用左手原则。FRONT_LEFT_TURN_CLEAR_CM 用于判断转弯前是否允许短距离前进，
- * FRONT_SAFE_DISTANCE_CM 用于判断直行和转弯后的前方是否安全。
+ * 本版算法采用左手原则。FRONT_SAFE_DISTANCE_CM 用于判断直行、
+ * 转弯前短距离前进和转弯后短距离前进是否安全。
  */
-#define FRONT_LEFT_TURN_CLEAR_CM 10      /* 前方距离大于该值，转弯前允许短距离前进 */
-#define FRONT_SAFE_DISTANCE_CM   18      /* 前方距离大于该值，认为可以继续前进 */
-#define FRONT_SLOW_DISTANCE_CM   28      /* 前方距离较近但仍安全时，降低前进速度 */
+#define FRONT_SAFE_DISTANCE_CM   10      /* 前方距离大于该值，认为可以继续前进 */
+#define FRONT_SLOW_DISTANCE_CM   15      /* 前方距离较近但仍安全时，降低前进速度 */
+#define FRONT_TURN_BACK_CLEAR_CM 15      /* 掉头时前方距离大于该值，认为已转到安全方向 */
 #define ULTRASONIC_MAX_CM        300
 #define ULTRASONIC_MIN_CM        2
 #define ULTRASONIC_TIMEOUT_US    30000
 #define ULTRASONIC_ECHO_IDLE_TIMEOUT_US 1000
 #define ULTRASONIC_TRIGGER_INTERVAL_MS 60U
-#define ULTRASONIC_RETRY_COUNT         3U
 
 /*
  * ==============================
  *  动作时间参数
  * ==============================
- * 下面仅保留停车和直线短距离动作时间；旋转不再使用固定转向时间。
+ * 90°转弯使用低速脉冲式差速转弯，转弯时间通常需要重新实测。
+ * 死路掉头使用分段原地左旋，前方超声波恢复到安全距离后提前退出。
  */
 #define MAZE_LOOP_DELAY_MS        35
+#define MAZE_FORWARD_CHECK_STEP_MS 40
+#define MAZE_FORWARD_CHECK_PAUSE_MS 20
 #define MAZE_STOP_BEFORE_TURN_MS  120
-#define MAZE_PRE_TURN_FORWARD_MS  120
+
+/* 延迟转弯时间 */
+#define MAZE_TURN_DELAY_FORWARD_MS 00
+
 #define MAZE_POST_TURN_FORWARD_MS 220
+#define MAZE_TURN_STEP_MS         220
+#define MAZE_TURN_STEP_PAUSE_MS   20
+#define MAZE_TURN_90_MS           1000
+#define MAZE_TURN_BACK_STEP_MS    80
+#define MAZE_TURN_BACK_CHECK_PAUSE_MS 20
+#define MAZE_TURN_BACK_MAX_MS     1500
 #define MAZE_SENSOR_FAULT_RETRY_MS 100
 
 #endif
